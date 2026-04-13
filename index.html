@@ -104,8 +104,8 @@
     // KONEKSI API GITHUB -> GOOGLE APPS SCRIPT
     // ==========================================================
     
-    // GANTI TULISAN DI BAWAH INI DENGAN URL WEB APP DARI APPS SCRIPT ANDA!
-    const API_URL = "https://script.google.com/macros/s/AKfycbxQI8ispCbz7vyq_53DcN316yOM4V2vvQ0PZt0oLiXBS0-H_MdyOIMUn1HDqhhOkHt_/exec"; 
+    // SANGAT PENTING: GANTI URL DI BAWAH INI DENGAN URL WEB APP ANDA!!
+    const API_URL = "https://script.google.com/macros/s/AKfycbzGr-sRmT1k7XHn6glBd6MSRbMzNOg34syNvWivVwtwb1xbkjEyrGQNDXv2Kh6SA2GC/exec"; 
 
     async function apiCall(action, params = {}) {
       const payload = { action: action, ...params };
@@ -680,7 +680,7 @@
             }
             
             if (isCheck) { addChecklistItem(text, isChecked, readOnly); } 
-            else if (actionPlanText.trim()) { notes.push(trim); } 
+            else if (actionPlanText && actionPlanText.trim()) { notes.push(trim); } 
         });
         
         if (notes.length > 0) document.getElementById('detNotesEditable').value = notes.join('\n');
@@ -777,7 +777,7 @@
                   <div id="checklistArea" class="mb-3"></div>
                   ${!checklistReadOnly ? `<button class="btn btn-sm btn-outline-success mb-3 fw-bold" onclick="addChecklistItem()"><i class="fas fa-plus me-1"></i> Tambah Item Checklist</button>` : ''}
                   
-                  <label class="form-label fw-bold text-muted small">Catatan Tambahan (Bila ada):</label>
+                  <label class="form-label fw-bold text-muted small mt-3">Catatan Tambahan (Bila ada):</label>
                   <textarea id="detNotesEditable" class="form-control border-success bg-light fw-bold" rows="3" ${checklistReadOnly ? 'readonly' : ''} placeholder="Ketik keterangan lain di sini..."></textarea>
                   
                   ${uploadSection}
