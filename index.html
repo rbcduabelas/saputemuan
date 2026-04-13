@@ -104,17 +104,22 @@
     // KONEKSI API GITHUB -> GOOGLE APPS SCRIPT
     // ==========================================================
     
-    // SANGAT PENTING: GANTI URL DI BAWAH INI DENGAN URL WEB APP ANDA!!
+    // GANTI TULISAN DI BAWAH INI DENGAN URL WEB APP ANDA!!
     const API_URL = "https://script.google.com/macros/s/AKfycbzGr-sRmT1k7XHn6glBd6MSRbMzNOg34syNvWivVwtwb1xbkjEyrGQNDXv2Kh6SA2GC/exec"; 
 
+    // Fungsi Fetch API yang dijamin kebal blokir CORS Google
     async function apiCall(action, params = {}) {
       const payload = { action: action, ...params };
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify(payload)
+          headers: { 'Content-Type': 'text/plain' }, // Wajib text/plain agar tidak diblokir
+          body: JSON.stringify(payload),
+          redirect: 'follow' // Wajib follow agar bisa mengikuti alur Google
         });
+        
+        if (!response.ok) throw new Error("HTTP Error: " + response.status);
+        
         const result = await response.json();
         if (!result.success) throw new Error(result.message);
         return result.data;
@@ -161,7 +166,6 @@
        lines.forEach(line => {
           let matchSpaces = line.match(/^(\s+)/); let spaceCount = matchSpaces ? matchSpaces[1].length : 0; let explicitIndent = spaceCount > 0 ? (spaceCount * 10) : -1; 
           let trimmed = line.trim(); let computedIndent = explicitIndent;
-          // Filter untuk membedakan antara format list biasa dan format checklist kita
           let isChecklist = trimmed.match(/^\[[xXvV\s]\]/); 
           let isNumber = /^[0-9]+[\.\)]\s+/.test(trimmed); let isRoman = /^(i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii)[\.\)]\s+/i.test(trimmed); let isLetter = /^[a-z][\.\)]\s+/i.test(trimmed) && !isRoman; let isBullet = /^[-*•]\s+/.test(trimmed);
 
@@ -189,7 +193,7 @@
     let appConfig = { app_name: 'SaPu Temuan', app_desc: 'Sistem Pemantauan Temuan Review', app_logo: '' }; 
 
     // ==========================================================
-    // INITIALIZATION (OPTIMISTIC UI - NO LOADING SCREEN)
+    // INITIALIZATION (OPTIMISTIC UI)
     // ==========================================================
     window.onload = async function() {
       document.body.addEventListener('mousemove', resetInactivityTimer); document.body.addEventListener('keypress', resetInactivityTimer); document.body.addEventListener('click', resetInactivityTimer); document.body.addEventListener('scroll', resetInactivityTimer);
@@ -213,10 +217,7 @@
           if(authToken) { localStorage.removeItem('authToken'); authToken = null; showLogin(); } 
       }
       
-      // PWA Service Worker Registration
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(reg => console.log('SW terdaftar')).catch(err => console.log('SW Gagal', err));
-      }
+      if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').then(reg => console.log('SW terdaftar')).catch(err => console.log('SW Gagal', err)); }
     };
 
     function showLogin() {
