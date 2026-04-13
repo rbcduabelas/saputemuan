@@ -63,12 +63,17 @@
     .form-switch .form-check-input { width: 3em; height: 1.5em; cursor: pointer; }
     .form-switch .form-check-input:checked { background-color: var(--mandiri-blue); border-color: var(--mandiri-blue); }
 
-    .chk-item { transition: 0.2s; }
-    .chk-item:hover { background-color: #f8f9fa; border-radius: 6px; }
-    .chk-box { width: 1.5rem !important; height: 1.5rem !important; cursor: pointer; }
-    .chk-text { transition: 0.2s; }
-    .chk-text:focus { background-color: #fff !important; box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25); outline: none; }
+    /* STYLING KHUSUS UNTUK FITUR CHECKLIST PROGRESS */
+    .chk-item { transition: background-color 0.2s ease; border-left: 3px solid transparent; padding-left: 8px; }
+    .chk-item:hover { background-color: #f0fdf4; border-left-color: #198754; border-radius: 4px; }
+    .chk-box { width: 1.5rem !important; height: 1.5rem !important; cursor: pointer; border: 2px solid #198754 !important; border-radius: 4px !important; }
+    .chk-box:checked { background-color: #198754 !important; border-color: #198754 !important; }
+    .chk-text { transition: all 0.2s ease; font-size: 0.95rem; }
+    .chk-text:focus { background-color: #fff !important; box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25); outline: none; border-radius: 4px; }
+    .text-strike { text-decoration: line-through; color: #6c757d !important; font-style: italic; }
+    
     .brand-element { transition: opacity 0.5s ease-in-out; }
+
     @media (max-width: 768px) { .main-wrapper { padding: 15px; } .livin-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
@@ -102,21 +107,18 @@
     // GANTI TULISAN DI BAWAH INI DENGAN URL WEB APP DARI APPS SCRIPT ANDA!
     const API_URL = "https://script.google.com/macros/s/AKfycbxQI8ispCbz7vyq_53DcN316yOM4V2vvQ0PZt0oLiXBS0-H_MdyOIMUn1HDqhhOkHt_/exec"; 
 
-    // Fungsi komunikasi utama pengganti google.script.run
     async function apiCall(action, params = {}) {
       const payload = { action: action, ...params };
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Format aman CORS
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(payload)
         });
         const result = await response.json();
         if (!result.success) throw new Error(result.message);
         return result.data;
-      } catch (error) {
-        throw error;
-      }
+      } catch (error) { throw error; }
     }
 
     // ==========================================================
@@ -154,18 +156,22 @@
 
     function formatTextHTML(text) {
        if (!text) return '-';
-       let safeText = String(text).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
+       let safeText = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
        let lines = safeText.split('\n'); let html = ''; let lastIndent = 0;
        lines.forEach(line => {
           let matchSpaces = line.match(/^(\s+)/); let spaceCount = matchSpaces ? matchSpaces[1].length : 0; let explicitIndent = spaceCount > 0 ? (spaceCount * 10) : -1; 
           let trimmed = line.trim(); let computedIndent = explicitIndent;
+          // Filter untuk membedakan antara format list biasa dan format checklist kita
+          let isChecklist = trimmed.match(/^\[[xXvV\s]\]/); 
           let isNumber = /^[0-9]+[\.\)]\s+/.test(trimmed); let isRoman = /^(i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii)[\.\)]\s+/i.test(trimmed); let isLetter = /^[a-z][\.\)]\s+/i.test(trimmed) && !isRoman; let isBullet = /^[-*•]\s+/.test(trimmed);
 
           if (explicitIndent === -1) {
              if (isNumber) computedIndent = 0; else if (isLetter) computedIndent = 20; else if (isRoman) computedIndent = 40; else if (isBullet) computedIndent = 20; else computedIndent = lastIndent;
           }
           computedIndent = Math.max(0, computedIndent); lastIndent = computedIndent;
-          if (isNumber || isLetter || isRoman) { html += `<div style="margin-left: ${computedIndent}px; padding-left: 20px; text-indent: -20px; margin-bottom: 4px;">${trimmed}</div>`;
+          
+          if(isChecklist) { html += `<div style="margin-left: ${computedIndent}px; margin-bottom: 4px;" class="fw-bold text-success">${trimmed}</div>`; }
+          else if (isNumber || isLetter || isRoman) { html += `<div style="margin-left: ${computedIndent}px; padding-left: 20px; text-indent: -20px; margin-bottom: 4px;">${trimmed}</div>`;
           } else if (isBullet) { let cleanText = trimmed.replace(/^[-*•]\s+/, ''); html += `<div style="margin-left: ${computedIndent}px; display: flex; margin-bottom: 4px;"><span style="width: 15px; flex-shrink: 0;">•</span><div>${cleanText}</div></div>`;
           } else if (trimmed !== '') { html += `<div style="margin-left: ${computedIndent}px; margin-bottom: 4px;">${trimmed}</div>`;
           } else { html += `<div style="height: 6px;"></div>`; }
@@ -183,7 +189,7 @@
     let appConfig = { app_name: 'SaPu Temuan', app_desc: 'Sistem Pemantauan Temuan Review', app_logo: '' }; 
 
     // ==========================================================
-    // INITIALIZATION (FETCH API)
+    // INITIALIZATION (OPTIMISTIC UI - NO LOADING SCREEN)
     // ==========================================================
     window.onload = async function() {
       document.body.addEventListener('mousemove', resetInactivityTimer); document.body.addEventListener('keypress', resetInactivityTimer); document.body.addEventListener('click', resetInactivityTimer); document.body.addEventListener('scroll', resetInactivityTimer);
@@ -205,6 +211,11 @@
           } else if(authToken) { localStorage.removeItem('authToken'); authToken = null; showLogin(); }
       } catch(e) { 
           if(authToken) { localStorage.removeItem('authToken'); authToken = null; showLogin(); } 
+      }
+      
+      // PWA Service Worker Registration
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(reg => console.log('SW terdaftar')).catch(err => console.log('SW Gagal', err));
       }
     };
 
@@ -337,9 +348,11 @@
     // MENU IDENTITAS APLIKASI (ADMIN)
     // ==========================================
     function loadIdentitasSettings() {
+      showLoader("Memuat pengaturan identitas...");
       let currentLogo = appConfig.app_logo ? `<div class="border rounded p-3 bg-white text-center shadow-sm"><img src="${appConfig.app_logo}" style="max-height: 120px; object-fit: contain;"></div>` : `<div class="mt-2 text-muted fst-italic">Menggunakan Logo Bawaan Sistem</div>`;
       const html = `<div class="row justify-content-center"><div class="col-md-8"><div class="card shadow-sm border-0"><div class="card-header bg-mandiri-blue text-white py-3"><h5 class="mb-0 fw-bold"><i class="fas fa-palette me-2 text-warning"></i>Identitas & Logo Aplikasi</h5></div><div class="card-body p-4 bg-light"><div class="alert alert-info border-info shadow-sm fw-medium"><i class="fas fa-info-circle me-2"></i>Pengaturan ini akan langsung mengubah wujud halaman Login dan Nama Aplikasi di Menu Atas.</div><div class="mb-4"><label class="form-label fw-bold text-primary">Nama Aplikasi</label><input type="text" id="cfgAppName" class="form-control form-control-lg border-primary" value="${appConfig.app_name || ''}" placeholder="Contoh: SaPu Temuan"></div><div class="mb-4"><label class="form-label fw-bold text-primary">Deskripsi (Sub-Judul di Halaman Login)</label><input type="text" id="cfgAppDesc" class="form-control border-primary" value="${appConfig.app_desc || ''}" placeholder="Contoh: Sistem Pemantauan Temuan Review"></div><div class="mb-4 p-3 border border-warning rounded bg-white"><label class="form-label fw-bold text-primary"><i class="fas fa-image me-2 text-warning"></i>Logo Aplikasi Saat Ini</label><br>${currentLogo}<hr><label class="form-label fw-bold mt-2">Unggah Logo Baru (Kosongkan jika tidak ingin mengubah)</label><input type="file" id="cfgAppLogo" class="form-control border-warning" accept="image/*"><small class="text-muted d-block mt-2">Gunakan format gambar <b>PNG (latar transparan)</b>. Gambar akan diunggah aman ke Google Drive.</small></div><div class="text-end"><button class="btn btn-outline-danger me-2 fw-bold" onclick="resetLogoDefault()"><i class="fas fa-trash me-1"></i> Kembali ke Logo Bawaan</button><button class="btn btn-primary btn-lg px-5 shadow-sm fw-bold" onclick="saveIdentitasAction()"><i class="fas fa-save me-2"></i> Simpan Perubahan</button></div></div></div></div></div>`;
       document.getElementById('pageContent').innerHTML = html;
+      hideLoader();
     }
 
     async function saveIdentitasAction() {
@@ -351,7 +364,7 @@
         if (fileInput && fileInput.files.length > 0) {
             let f = fileInput.files[0]; let b64 = await toBase64(f); let fileData = { name: f.name, type: f.type, base64: b64.split(',')[1] };
             let uploadRes = await apiCall('uploadLogoToDrive', { token: authToken, fileData: fileData });
-            payload.app_logo = uploadRes.url;
+            payload.app_logo = uploadRes.url || uploadRes; 
         } else { payload.app_logo = appConfig.app_logo || ''; }
         
         await apiCall('saveConfigSettings', { token: authToken, payload: payload });
@@ -628,7 +641,7 @@
         div.className = 'd-flex align-items-center mb-2 chk-item';
         div.innerHTML = `
             <input class="form-check-input me-2 chk-box border-success" type="checkbox" style="width:1.5rem; height:1.5rem;" ${isChecked?'checked':''} ${readOnly?'disabled':''} onchange="updateProgressFromChecklist(this)">
-            <input type="text" class="form-control border-0 bg-transparent fw-medium chk-text ${isChecked?'text-decoration-line-through text-muted':''}" value="${text}" ${readOnly?'readonly':''} oninput="updateProgressFromChecklist()" placeholder="Ketik rincian item...">
+            <input type="text" class="form-control border-0 bg-transparent fw-medium chk-text ${isChecked?'text-strike text-muted':''}" value="${text.replace(/"/g, '&quot;')}" ${readOnly?'readonly':''} oninput="updateProgressFromChecklist()" placeholder="Ketik rincian item...">
             ${!readOnly ? `<button class="btn text-danger ms-1" onclick="this.parentElement.remove(); updateProgressFromChecklist();"><i class="fas fa-times"></i></button>` : ''}
         `;
         document.getElementById('checklistArea').appendChild(div);
@@ -637,8 +650,8 @@
     window.updateProgressFromChecklist = function(el) {
         if(el) {
             let input = el.parentElement.querySelector('.chk-text');
-            if(el.checked) { input.classList.add('text-decoration-line-through', 'text-muted'); }
-            else { input.classList.remove('text-decoration-line-through', 'text-muted'); }
+            if(el.checked) { input.classList.add('text-strike', 'text-muted'); }
+            else { input.classList.remove('text-strike', 'text-muted'); }
         }
         let boxes = document.querySelectorAll('.chk-item .chk-box');
         let total = boxes.length; let checked = Array.from(boxes).filter(b => b.checked).length;
@@ -649,7 +662,10 @@
 
     function renderChecklist(actionPlanText, rekomendasiText, readOnly) {
         let area = document.getElementById('checklistArea'); area.innerHTML = '';
-        let sourceText = actionPlanText.trim() ? actionPlanText : rekomendasiText;
+        
+        let sourceText = actionPlanText && actionPlanText.trim() ? actionPlanText : rekomendasiText;
+        if (!sourceText) sourceText = "";
+        
         let lines = sourceText.split('\n');
         let notes = [];
         
@@ -662,9 +678,11 @@
             else if (trim.match(/^[-*•]\s+/) || trim.match(/^[0-9]+[\.\)]\s+/)) {
                 isChecked = false; isCheck = true; text = trim.replace(/^[-*•]\s+/, '').replace(/^[0-9]+[\.\)]\s+/, '').trim();
             }
+            
             if (isCheck) { addChecklistItem(text, isChecked, readOnly); } 
             else if (actionPlanText.trim()) { notes.push(trim); } 
         });
+        
         if (notes.length > 0) document.getElementById('detNotesEditable').value = notes.join('\n');
         updateProgressFromChecklist();
     }
@@ -847,7 +865,7 @@
       if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
       showLoader("Memuat daftar Pimpinan...");
       try {
-        const pimpinans = await apiCall('getPimpinans');
+        const pimpinans = await apiCall('getPimpinans', { token: authToken });
         hideLoader();
         let opts = '<option value="">-- Pilih Pimpinan --</option>'; pimpinans.forEach(p => opts += `<option value="${p.nip}">${p.nama} (${p.nip})</option>`);
         const html = `<div class="modal fade" id="reviewModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-info text-white"><h5 class="modal-title fw-bold"><i class="fas fa-search-check me-2"></i>Teruskan ke Pimpinan</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><label class="fw-bold mb-2">Pilih Pimpinan Approver:</label><select id="targetPimpinan" class="form-select border-info mb-3 form-select-lg">${opts}</select></div><div class="modal-footer bg-light"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-info text-white fw-bold px-4" onclick="submitReview('${id}')"><i class="fas fa-share-square me-1"></i> Teruskan</button></div></div></div></div>`;
