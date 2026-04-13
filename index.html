@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=yes">
+  <title>SaPu Temuan</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/png" href="icon-192.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root { --mandiri-blue: #003D79; --mandiri-yellow: #FFC000; --bg-color: #f4f7fa; }
+    body { font-family: 'Poppins', sans-serif; background: var(--bg-color); color: #333; }
+    
+    .top-navbar { background: var(--mandiri-blue); color: white; padding: 12px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1040; }
+    .top-navbar .brand-logo { font-size: 1.4rem; font-weight: 700; color: white; text-decoration: none; display: flex; align-items: center; cursor: pointer; letter-spacing: 0.5px; }
+    .top-navbar .brand-logo img { height: 55px; max-width: 180px; object-fit: contain; margin-right: 12px; transition: opacity 0.5s ease-in-out; }
+    
+    .top-navbar .user-profile { display: flex; align-items: center; cursor: pointer; color: white; text-decoration: none; padding: 5px 10px; border-radius: 30px; transition: 0.3s; }
+    .top-navbar .user-profile:hover { background: rgba(255,255,255,0.1); }
+    .user-avatar { background: var(--mandiri-yellow); color: var(--mandiri-blue); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; margin-right: 10px; font-size: 1.1rem; }
+    
+    .main-wrapper { max-width: 1400px; margin: 0 auto; padding: 30px 15px; min-height: 80vh; }
+    
+    .livin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 20px; margin-top: 20px; }
+    .livin-card { background: #fff; border-radius: 16px; padding: 25px 15px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; }
+    .livin-card:hover { transform: translateY(-5px); border-color: var(--mandiri-yellow); box-shadow: 0 8px 25px rgba(0,61,121,0.15); }
+    .livin-icon { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 28px; color: white; }
+    .icon-dashboard { background: linear-gradient(135deg, #003D79, #00509e); }
+    .icon-cek { background: linear-gradient(135deg, #17a2b8, #3fc1d6); }
+    .icon-tambah { background: linear-gradient(135deg, #198754, #20c997); }
+    .icon-upload { background: linear-gradient(135deg, #e83e8c, #f56bb2); }
+    .icon-users { background: linear-gradient(135deg, #6f42c1, #a951ed); }
+    .icon-laporan { background: linear-gradient(135deg, #fd7e14, #ffb347); }
+    .icon-progress { background: linear-gradient(135deg, #28a745, #20c997); }
+    .icon-notif { background: linear-gradient(135deg, #dc3545, #ff6b6b); }
+    .icon-identitas { background: linear-gradient(135deg, #6610f2, #a264ff); }
+    .livin-title { font-size: 0.95rem; font-weight: 600; color: var(--mandiri-blue); line-height: 1.3; }
+
+    .card { border: none; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.04); overflow: hidden; }
+    .card-header { border-bottom: 1px solid #eee; background-color: #fff !important; }
+    
+    .bg-mandiri-blue { background-color: var(--mandiri-blue) !important; color: white; }
+    .bg-mandiri-yellow { background-color: var(--mandiri-yellow) !important; color: var(--mandiri-blue); }
+    .btn-primary { background-color: var(--mandiri-blue); border-color: var(--mandiri-blue); border-radius: 8px; font-weight: 500; }
+    .btn-warning { background-color: var(--mandiri-yellow); border-color: var(--mandiri-yellow); color: var(--mandiri-blue); font-weight: 600; border-radius: 8px; }
+    .badge { padding: 8px 12px; border-radius: 6px; font-weight: 500; font-size: 0.8rem; letter-spacing: 0.5px; }
+    
+    .table-container { max-height: 65vh; overflow-y: auto; overflow-x: auto; border-radius: 8px; }
+    .table { table-layout: fixed; width: 100%; min-width: 1000px; margin-bottom: 0; }
+    .table thead th { position: sticky; top: -1px; z-index: 10; background-color: #f8f9fa !important; color: var(--mandiri-blue); font-weight: 600; vertical-align: middle !important; border-bottom: 2px solid #eee; padding: 15px; font-size: 0.95rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); background-clip: padding-box; }
+    .table td { white-space: normal !important; word-wrap: break-word !important; overflow-wrap: break-word !important; vertical-align: top !important; font-size: 0.85rem; line-height: 1.6; color: #444; border-bottom: 1px solid #f1f1f1; padding: 15px 12px; }
+    
+    .form-label { font-weight: 600; color: var(--mandiri-blue); }
+    .chart-container { position: relative; height: 280px; width: 100%; display: flex; justify-content: center; align-items: center; }
+    
+    #confirmModal, #promptModal, #alertModal, #fileViewerModal { z-index: 1060 !important; }
+    .form-switch .form-check-input { width: 3em; height: 1.5em; cursor: pointer; }
+    .form-switch .form-check-input:checked { background-color: var(--mandiri-blue); border-color: var(--mandiri-blue); }
+
+    .chk-item { transition: 0.2s; }
+    .chk-item:hover { background-color: #f8f9fa; border-radius: 6px; }
+    .chk-box { width: 1.5rem !important; height: 1.5rem !important; cursor: pointer; }
+    .chk-text { transition: 0.2s; }
+    .chk-text:focus { background-color: #fff !important; box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25); outline: none; }
+    .brand-element { transition: opacity 0.5s ease-in-out; }
+    @media (max-width: 768px) { .main-wrapper { padding: 15px; } .livin-grid { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+  <div id="app" class="bg-light min-vh-100"></div>
+
+  <div id="globalLoader" class="position-fixed top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-none justify-content-center align-items-center" style="z-index: 2000;">
+    <div class="text-center"><div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;"></div><h5 class="fw-bold text-primary" id="loaderText">Memproses...</h5></div>
+  </div>
+
+  <div id="staticModals">
+    <div class="modal fade" id="alertModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg text-center p-3"><div class="modal-body"><i class="fas fa-info-circle fa-3x text-info mb-3"></i><h6 class="fw-bold mb-4 text-dark" id="alertMsg">Pesan</h6><button class="btn btn-primary px-4 fw-bold w-100" data-bs-dismiss="modal">Mengerti</button></div></div></div></div>
+    <div class="modal fade" id="confirmModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0 shadow-lg text-center p-3"><div class="modal-body"><i class="fas fa-exclamation-circle fa-3x text-warning mb-3"></i><h6 class="fw-bold mb-4 text-dark" id="confirmMsg">Apakah Anda yakin?</h6><div class="d-flex justify-content-center gap-2"><button class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary px-4 fw-bold" id="confirmBtn">Ya</button></div></div></div></div></div>
+    <div class="modal fade" id="promptModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-danger text-white"><h5 class="modal-title fw-bold"><i class="fas fa-times-circle me-2"></i>Tolak Bukti Penyelesaian</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><label class="form-label fw-bold">Alasan Penolakan (Diemail ke Cabang):</label><textarea id="promptInput" class="form-control border-danger" rows="4" placeholder="Tuliskan alasan..."></textarea></div><div class="modal-footer bg-light"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-danger fw-bold px-4" id="promptBtn"><i class="fas fa-paper-plane me-1"></i> Tolak</button></div></div></div></div>
+    <div class="modal fade" id="fileViewerModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-xl"><div class="modal-content border-0 shadow-lg"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fas fa-file-alt me-2 text-info"></i>Pratinjau Dokumen</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0" style="height: 80vh;"><iframe id="fileViewerFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe></div></div></div></div>
+    <div class="modal fade" id="gantiPassModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-mandiri-blue text-white"><h5 class="modal-title fw-bold"><i class="fas fa-key me-2 text-warning"></i>Ubah Kata Sandi</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="mb-3"><label class="form-label">Kata Sandi Saat Ini</label><input type="password" id="passLama" class="form-control border-primary"></div><div class="mb-3"><label class="form-label">Kata Sandi Baru</label><input type="password" id="passBaru" class="form-control border-primary"></div><div id="passMsg"></div></div><div class="modal-footer bg-light"><button class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button><button class="btn btn-warning" onclick="submitGantiPass()"><i class="fas fa-save me-1"></i> Simpan</button></div></div></div></div>
+
+    <div class="modal fade" id="addUserModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-mandiri-blue text-white"><h5 class="modal-title fw-bold"><i class="fas fa-user-plus me-2 text-warning"></i>Tambah Pengguna</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div class="row"><div class="col-md-6 mb-3"><label class="form-label">NIP / Username</label><input type="text" id="addNip" class="form-control border-primary"></div><div class="col-md-6 mb-3"><label class="form-label">Nama Lengkap</label><input type="text" id="addNama" class="form-control border-primary"></div><div class="col-md-6 mb-3"><label class="form-label">Jabatan</label><input type="text" id="addJabatan" class="form-control border-primary" placeholder="Contoh: Kepala Cabang"></div><div class="col-md-6 mb-3"><label class="form-label">Email</label><input type="email" id="addEmail" class="form-control border-primary"></div><div class="col-md-6 mb-3"><label class="form-label">Nomor WhatsApp (Awalan 08 / 628)</label><input type="text" id="addWa" class="form-control border-primary" placeholder="08123456789"></div><div class="col-md-6 mb-3"><label class="form-label">Tim Review</label><input type="text" id="addTimReview" class="form-control border-primary"></div><div class="col-md-6 mb-3"><label class="form-label">Role Akses</label><select id="addRole" class="form-select bg-light border-primary" onchange="toggleAddRoleFields(this.value)"><option value="admin">Admin</option><option value="auditor">Reviewer</option><option value="pimpinan">Pimpinan</option><option value="cabang">Cabang</option><option value="pic_jenis">PIC Jenis Review</option></select></div><div class="col-md-6 mb-3" id="addCabangDiv" style="display:none;"><label class="form-label">Lokasi Cabang</label><input type="text" id="addCabang" class="form-control border-primary"></div><div class="col-md-6 mb-3" id="addSpesDiv" style="display:none;"><label class="form-label">Spesialisasi (Multi)</label><input type="text" id="addSpes" class="form-control border-primary" placeholder="Contoh: Kredit, Operasional"></div><div class="col-md-6 mb-3"><label class="form-label">Password Awal</label><input type="text" id="addPass" class="form-control border-primary"></div></div><div id="addUsrMsg"></div></div><div class="modal-footer bg-light"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-primary px-4" onclick="submitAddUser()"><i class="fas fa-save me-1"></i> Simpan</button></div></div></div></div>
+    <div class="modal fade" id="editUserModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-warning text-dark"><h5 class="modal-title fw-bold"><i class="fas fa-user-edit me-2 text-primary"></i>Edit Pengguna</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="editNip"><div class="row"><div class="col-md-6 mb-3"><label class="form-label">Nama Lengkap</label><input type="text" id="editNama" class="form-control border-warning"></div><div class="col-md-6 mb-3"><label class="form-label">Email</label><input type="email" id="editEmail" class="form-control border-warning"></div><div class="col-md-6 mb-3"><label class="form-label">Nomor WhatsApp</label><input type="text" id="editWa" class="form-control border-warning" placeholder="08123456789"></div><div class="col-md-6 mb-3"><label class="form-label">Jabatan</label><input type="text" id="editJabatan" class="form-control border-warning" placeholder="Contoh: Kepala Cabang"></div><div class="col-md-6 mb-3"><label class="form-label">Tim Review</label><input type="text" id="editTimReview" class="form-control border-warning"></div><div class="col-md-6 mb-3"><label class="form-label">Role Akses</label><select id="editRole" class="form-select bg-light border-warning" onchange="toggleEditRoleFields(this.value)"><option value="admin">Admin</option><option value="auditor">Reviewer</option><option value="pimpinan">Pimpinan</option><option value="cabang">Cabang</option><option value="pic_jenis">PIC Jenis Review</option></select></div><div class="col-md-6 mb-3" id="editCabangDiv"><label class="form-label">Lokasi Cabang</label><input type="text" id="editCabang" class="form-control border-warning"></div><div class="col-md-6 mb-3" id="editSpesDiv"><label class="form-label">Spesialisasi (Multi)</label><input type="text" id="editSpes" class="form-control border-warning" placeholder="Contoh: Kredit, Operasional"></div><div class="col-md-6 mb-3"><label class="form-label">Status Akun</label><select id="editStatus" class="form-select bg-light border-warning"><option value="true">Aktif</option><option value="false">Non-aktif</option></select></div><div class="col-md-6 mb-3"><label class="form-label">Reset Password</label><input type="text" id="editPass" class="form-control border-warning" placeholder="(Kosongkan jika tetap)"></div></div><div id="editUsrMsg"></div></div><div class="modal-footer bg-light"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-warning px-4" onclick="submitEditUser()"><i class="fas fa-save me-1"></i> Perbarui</button></div></div></div></div>
+    
+    <div id="dynamicModals"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // ==========================================================
+    // KONEKSI API GITHUB -> GOOGLE APPS SCRIPT
+    // ==========================================================
+    
+    // GANTI TULISAN DI BAWAH INI DENGAN URL WEB APP DARI APPS SCRIPT ANDA!
+    const API_URL = "https://script.google.com/macros/s/AKfycbxQI8ispCbz7vyq_53DcN316yOM4V2vvQ0PZt0oLiXBS0-H_MdyOIMUn1HDqhhOkHt_/exec"; 
+
+    // Fungsi komunikasi utama pengganti google.script.run
+    async function apiCall(action, params = {}) {
+      const payload = { action: action, ...params };
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Format aman CORS
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (!result.success) throw new Error(result.message);
+        return result.data;
+      } catch (error) {
+        throw error;
+      }
+    }
+
+    // ==========================================================
+    // UTILITY FUNCTIONS & ERROR HANDLING
+    // ==========================================================
+    function toBase64(file) { return new Promise((resolve, reject) => { const reader = new FileReader(); reader.readAsDataURL(file); reader.onload = () => resolve(reader.result); reader.onerror = error => reject(error); }); }
+    function toggleAddRoleFields(role) { document.getElementById('addCabangDiv').style.display = (role === 'cabang') ? 'block' : 'none'; document.getElementById('addSpesDiv').style.display = (role === 'pic_jenis') ? 'block' : 'none'; }
+    function toggleEditRoleFields(role) { document.getElementById('editCabangDiv').style.display = (role === 'cabang') ? 'block' : 'none'; document.getElementById('editSpesDiv').style.display = (role === 'pic_jenis') ? 'block' : 'none'; }
+    function showLoader(text="Memproses...") { document.getElementById('loaderText').innerText = text; document.getElementById('globalLoader').classList.replace('d-none', 'd-flex'); }
+    function hideLoader() { document.getElementById('globalLoader').classList.replace('d-flex', 'd-none'); }
+    function showAlert(msg) { document.getElementById('alertMsg').innerText = msg; new bootstrap.Modal(document.getElementById('alertModal')).show(); }
+
+    function showErrorAlert(msg) {
+        hideLoader(); let pc = document.getElementById('pageContent');
+        if(pc) { pc.innerHTML = `<div class="alert alert-danger m-4 shadow border-danger"><h4 class="fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>Terjadi Kesalahan</h4><p>${msg}</p><button class="btn btn-outline-danger mt-3 fw-bold" onclick="refreshData()"><i class="fas fa-sync-alt me-1"></i> Coba Muat Ulang</button></div>`;
+        } else { alert("Terjadi Kesalahan: " + msg); }
+    }
+
+    function showConfirm(msg, callback) { document.getElementById('confirmMsg').innerText = msg; document.getElementById('confirmBtn').onclick = () => { bootstrap.Modal.getInstance(document.getElementById('confirmModal')).hide(); callback(); }; new bootstrap.Modal(document.getElementById('confirmModal')).show(); }
+    function showPrompt(callback) { document.getElementById('promptInput').value = ''; document.getElementById('promptBtn').onclick = () => { const val = document.getElementById('promptInput').value; if(!val) return showAlert("Alasan penolakan wajib diisi!"); bootstrap.Modal.getInstance(document.getElementById('promptModal')).hide(); callback(val); }; new bootstrap.Modal(document.getElementById('promptModal')).show(); }
+
+    function parseDateString(val) {
+      if (!val || val === '-') return null;
+      let str = String(val).trim(); let parts;
+      if (str.includes('/')) parts = str.split('/'); else if (str.includes('-')) parts = str.split('-'); else return new Date(str);
+      if (parts && parts.length === 3) {
+         if (parts[2].length === 4) return new Date(parts[2], parseInt(parts[1])-1, parts[0]);
+         if (parts[0].length === 4) return new Date(parts[0], parseInt(parts[1])-1, parts[2]);
+      }
+      return new Date(str);
+    }
+    
+    function getIsoDate(val) { let d = parseDateString(val); if (!d || isNaN(d)) return ''; return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+    function formatTgl(val) { let d = parseDateString(val); if (!d || isNaN(d)) return val || '-'; return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
+
+    function formatTextHTML(text) {
+       if (!text) return '-';
+       let safeText = String(text).replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>').replace(/"/g, '"');
+       let lines = safeText.split('\n'); let html = ''; let lastIndent = 0;
+       lines.forEach(line => {
+          let matchSpaces = line.match(/^(\s+)/); let spaceCount = matchSpaces ? matchSpaces[1].length : 0; let explicitIndent = spaceCount > 0 ? (spaceCount * 10) : -1; 
+          let trimmed = line.trim(); let computedIndent = explicitIndent;
+          let isNumber = /^[0-9]+[\.\)]\s+/.test(trimmed); let isRoman = /^(i|ii|iii|iv|v|vi|vii|viii|ix|x|xi|xii)[\.\)]\s+/i.test(trimmed); let isLetter = /^[a-z][\.\)]\s+/i.test(trimmed) && !isRoman; let isBullet = /^[-*•]\s+/.test(trimmed);
+
+          if (explicitIndent === -1) {
+             if (isNumber) computedIndent = 0; else if (isLetter) computedIndent = 20; else if (isRoman) computedIndent = 40; else if (isBullet) computedIndent = 20; else computedIndent = lastIndent;
+          }
+          computedIndent = Math.max(0, computedIndent); lastIndent = computedIndent;
+          if (isNumber || isLetter || isRoman) { html += `<div style="margin-left: ${computedIndent}px; padding-left: 20px; text-indent: -20px; margin-bottom: 4px;">${trimmed}</div>`;
+          } else if (isBullet) { let cleanText = trimmed.replace(/^[-*•]\s+/, ''); html += `<div style="margin-left: ${computedIndent}px; display: flex; margin-bottom: 4px;"><span style="width: 15px; flex-shrink: 0;">•</span><div>${cleanText}</div></div>`;
+          } else if (trimmed !== '') { html += `<div style="margin-left: ${computedIndent}px; margin-bottom: 4px;">${trimmed}</div>`;
+          } else { html += `<div style="height: 6px;"></div>`; }
+       });
+       return html;
+    }
+
+    function viewDocumentInModal(url) { document.getElementById('fileViewerFrame').src = url; const m = bootstrap.Modal.getOrCreateInstance(document.getElementById('fileViewerModal')); m.show(); }
+
+    let inactivityTimer; let silentInterval;
+    function resetInactivityTimer() { clearTimeout(inactivityTimer); if (authToken && currentUser) { inactivityTimer = setTimeout(() => { logout(true); }, 900000); } }
+
+    let authToken = localStorage.getItem('authToken');
+    let currentUser = null; let activeMenu = 'home'; let globalFindings = []; let globalUsers = []; let myChart = null; let currentFilteredIds = []; let isSearchActive = false;
+    let appConfig = { app_name: 'SaPu Temuan', app_desc: 'Sistem Pemantauan Temuan Review', app_logo: '' }; 
+
+    // ==========================================================
+    // INITIALIZATION (FETCH API)
+    // ==========================================================
+    window.onload = async function() {
+      document.body.addEventListener('mousemove', resetInactivityTimer); document.body.addEventListener('keypress', resetInactivityTimer); document.body.addEventListener('click', resetInactivityTimer); document.body.addEventListener('scroll', resetInactivityTimer);
+      const fvModal = document.getElementById('fileViewerModal'); if(fvModal) { fvModal.addEventListener('hidden.bs.modal', function () { document.getElementById('fileViewerFrame').src = ''; }); }
+      
+      if (!authToken) { showLogin(); }
+      
+      try {
+          const data = await apiCall('getInitialData', { token: authToken });
+          appConfig = data.config || appConfig; document.title = appConfig.app_name;
+          if(!authToken) { updateLoginBranding(); }
+          
+          if (data.user && authToken) {
+             currentUser = data.user; globalFindings = data.findings || [];
+             updateBellNotification(); renderHome(); resetInactivityTimer();
+             silentInterval = setInterval(async () => { 
+                if(authToken) { try{ globalFindings = await apiCall('getFindings', {token: authToken}); updateBellNotification(); }catch(e){} } 
+             }, 45000);
+          } else if(authToken) { localStorage.removeItem('authToken'); authToken = null; showLogin(); }
+      } catch(e) { 
+          if(authToken) { localStorage.removeItem('authToken'); authToken = null; showLogin(); } 
+      }
+    };
+
+    function showLogin() {
+      let name = appConfig.app_name || 'SaPu Temuan'; let desc = appConfig.app_desc || 'Sistem Pemantauan Temuan Review';
+      let logoHtml = appConfig.app_logo ? `<img src="${appConfig.app_logo}" alt="Logo" style="max-height: 120px; width: auto; max-width: 100%; margin-bottom: 15px; object-fit: contain;">` : `<i class="fas fa-shield-alt fa-4x text-warning mb-3" id="loginLogoIcon"></i>`;
+      document.getElementById('app').innerHTML = `<div class="container d-flex justify-content-center align-items-center min-vh-100"><div class="card" style="width: 100%; max-width: 420px; box-shadow: 0 10px 30px rgba(0,61,121,0.15);"><div class="card-header bg-mandiri-blue text-center py-4 brand-element" id="loginHeaderArea">${logoHtml}<h3 class="mb-0 fw-bold text-white" id="loginAppName">${name}</h3><small class="text-white-50" id="loginAppDesc">${desc}</small></div><div class="card-body p-4"><div class="mb-3"><label class="form-label text-muted">NIP / ID Pengguna</label><div class="input-group"><span class="input-group-text bg-light"><i class="fas fa-user text-muted"></i></span><input type="text" id="nip" class="form-control" placeholder="Masukkan NIP"></div></div><div class="mb-4"><label class="form-label text-muted">Kata Sandi</label><div class="input-group"><span class="input-group-text bg-light"><i class="fas fa-lock text-muted"></i></span><input type="password" id="password" class="form-control" placeholder="Password" onkeydown="if(event.key === 'Enter') login()"></div></div><button class="btn btn-warning w-100 py-2 mb-2 shadow-sm fw-bold" onclick="login()">Login</button><p id="loginMessage" class="text-danger text-center mt-2 fw-medium"></p></div></div></div>`;
+    }
+
+    function updateLoginBranding() {
+      const headerArea = document.getElementById('loginHeaderArea');
+      if (headerArea && appConfig.app_logo) {
+         headerArea.style.opacity = 0; 
+         setTimeout(() => {
+            headerArea.innerHTML = `<img src="${appConfig.app_logo}" alt="Logo" style="max-height: 120px; width: auto; max-width: 100%; margin-bottom: 15px; object-fit: contain;"><h3 class="mb-0 fw-bold text-white">${appConfig.app_name}</h3><small class="text-white-50">${appConfig.app_desc}</small>`;
+            headerArea.style.opacity = 1; 
+         }, 300);
+      } else if (document.getElementById('loginAppName')) {
+         document.getElementById('loginAppName').innerText = appConfig.app_name; document.getElementById('loginAppDesc').innerText = appConfig.app_desc;
+      }
+    }
+
+    async function login() {
+      const nipVal = document.getElementById('nip').value; const passVal = document.getElementById('password').value;
+      if (!nipVal || !passVal) { document.getElementById('loginMessage').innerHTML = '<span class="text-danger">Harap isi NIP dan Kata Sandi.</span>'; return; }
+      document.getElementById('loginMessage').innerHTML = ''; showLoader('Memproses Login...');
+      try {
+        const res = await apiCall('doLogin', { nip: nipVal, password: passVal });
+        hideLoader(); 
+        authToken = res.token; localStorage.setItem('authToken', authToken); currentUser = res.user; globalFindings = res.findings || [];
+        updateBellNotification(); renderHome(); resetInactivityTimer(); 
+        clearInterval(silentInterval); silentInterval = setInterval(async () => { if(authToken){ try{ globalFindings = await apiCall('getFindings', {token: authToken}); updateBellNotification(); }catch(e){} } }, 45000);
+      } catch(err) { hideLoader(); document.getElementById('loginMessage').innerHTML = `<span class="text-danger">${err.message}</span>`; }
+    }
+
+    function logout(isSilent = false) { clearTimeout(inactivityTimer); clearInterval(silentInterval); const oldToken = authToken; localStorage.removeItem('authToken'); authToken = null; currentUser = null; globalFindings = []; showLogin(); updateLoginBranding(); }
+    function openGantiPassModal() { document.getElementById('passLama').value = ''; document.getElementById('passBaru').value = ''; document.getElementById('passMsg').innerHTML = ''; const m = bootstrap.Modal.getOrCreateInstance(document.getElementById('gantiPassModal')); m.show(); }
+
+    async function submitGantiPass() {
+      const lama = document.getElementById('passLama').value; const baru = document.getElementById('passBaru').value;
+      if(!lama || !baru) return showAlert("Harap isi kedua kolom sandi!");
+      document.getElementById('passMsg').innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...</div>';
+      try {
+        const res = await apiCall('ubahPasswordSendiri', { token: authToken, oldPass: lama, newPass: baru });
+        document.getElementById('passMsg').innerHTML = `<div class="alert alert-success">${res.message}</div>`; setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('gantiPassModal')).hide(); }, 1500);
+      } catch(err) { document.getElementById('passMsg').innerHTML = `<div class="alert alert-danger">${err.message}</div>`; }
+    }
+
+    function updateBellNotification() {
+      if (!globalFindings || !currentUser) return;
+      let actionable = [];
+      if (currentUser.role === 'cabang' || currentUser.role === 'pic_jenis') { actionable = globalFindings.filter(f => { let s=String(f.status).toLowerCase(); return s==='pending'||s==='overdue';});
+      } else if (currentUser.role === 'auditor' || currentUser.role === 'reviewer') { actionable = globalFindings.filter(f => String(f.status).toLowerCase() === 'review');
+      } else if (currentUser.role === 'pimpinan') { actionable = globalFindings.filter(f => String(f.status).toLowerCase() === 'approval' && String(f.target_approver) === String(currentUser.nip)); }
+
+      const badge = document.getElementById('bellBadge'); const menu = document.getElementById('bellMenu');
+      if (badge && menu) {
+        if (actionable.length > 0) { badge.style.display = 'block'; badge.innerText = actionable.length; menu.innerHTML = `<div class="mb-2"><i class="fas fa-bell fa-2x text-warning"></i></div><h6 class="fw-bold text-primary mb-2">Notifikasi Antrean</h6><p class="small text-muted mb-0">Terdapat <b>${actionable.length} temuan</b> pada antrean Anda yang membutuhkan tindak lanjut segera.</p>`;
+        } else { badge.style.display = 'none'; menu.innerHTML = `<div class="py-3"><i class="fas fa-check-circle fa-3x text-success mb-3"></i><h6 class="fw-bold text-dark">Semua Tuntas!</h6><p class="small text-muted mb-0">Saat ini tidak ada temuan yang harus ditindaklanjuti.</p></div>`; }
+      }
+    }
+
+    function getTopNavbarHTML(showBackBtn = false, pageTitle = '') {
+      const safeName = String(currentUser.nama || currentUser.nip || 'U'); const initialName = safeName.charAt(0).toUpperCase();
+      let name = appConfig.app_name || 'SaPu Temuan';
+      let logoNav = appConfig.app_logo ? `<img src="${appConfig.app_logo}" alt="Logo">` : `<i class="fas fa-shield-alt text-warning me-2" style="font-size: 1.8rem;"></i>`;
+      let leftContent = `<div class="brand-logo" onclick="renderHome()">${logoNav}<span>${name}</span></div>`;
+      if (showBackBtn) { leftContent = `<div class="brand-logo" onclick="renderHome()"><i class="fas fa-arrow-left me-3"></i>${pageTitle}</div>`; }
+
+      return `<nav class="top-navbar d-flex justify-content-between align-items-center">${leftContent}<div class="d-flex align-items-center"><button class="btn btn-sm btn-outline-light me-3 fw-bold border-0" onclick="refreshData()"><i class="fas fa-sync-alt me-1"></i> Refresh</button><div class="dropdown me-4 position-relative"><i class="fas fa-bell text-white fs-5" data-bs-toggle="dropdown" style="cursor:pointer;"></i><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger shadow" id="bellBadge" style="font-size:0.65rem; display:none;">0</span><ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-3 p-3 text-center" style="width: 280px; border-radius:12px;" id="bellMenu"><div class="spinner-border text-primary spinner-border-sm"></div></ul></div><div class="dropdown"><div class="user-profile" data-bs-toggle="dropdown" aria-expanded="false"><div class="user-avatar shadow-sm">${initialName}</div><span class="fw-medium d-none d-sm-inline">${safeName}</span><i class="fas fa-chevron-down ms-2 small"></i></div><ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2"><li><h6 class="dropdown-header text-capitalize">Role: ${currentUser.role === 'auditor' ? 'Reviewer' : currentUser.role}</h6></li><li><a class="dropdown-item" href="javascript:void(0)" onclick="openGantiPassModal()"><i class="fas fa-key me-2 text-warning"></i> Ganti Sandi</a></li><li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-danger fw-bold" href="javascript:void(0)" onclick="logout()"><i class="fas fa-sign-out-alt me-2"></i> Keluar</a></li></ul></div></div></nav>`;
+    }
+
+    async function refreshData(triggerAction = null) {
+      showLoader("Memuat data terbaru...");
+      try {
+          globalFindings = await apiCall('getFindings', { token: authToken });
+          updateBellNotification(); hideLoader();
+          if (activeMenu === 'dashboard') renderDashboardContainer();
+          else if (activeMenu === 'cek_temuan' && isSearchActive) applyCekTemuan(); 
+          else if (activeMenu === 'cek_temuan' && !isSearchActive) renderCekTemuanContainer();
+          else if (activeMenu === 'progress') renderProgressContainer();
+          if(triggerAction === 'closeDetail'){ const el = document.getElementById('detailTemuanModal'); if(el) { const m = bootstrap.Modal.getInstance(el); if(m) m.hide(); } }
+      } catch(err) { hideLoader(); showErrorAlert("Gagal terhubung ke Database: " + err.message); }
+    }
+
+    function renderHome() {
+      activeMenu = 'home'; isSearchActive = false; 
+      const safeName = String(currentUser.nama || currentUser.nip || 'User');
+      let roleDisplay = currentUser.role === 'auditor' ? 'Reviewer' : currentUser.role; if (currentUser.role === 'pic_jenis') roleDisplay = 'PIC: ' + (currentUser.spesialisasi || 'Multidivisi');
+      
+      let subTitleParts = [];
+      if (currentUser.jabatan) subTitleParts.push(currentUser.jabatan);
+      if (currentUser.cabang) subTitleParts.push(currentUser.cabang); else if (currentUser.timReview) subTitleParts.push(currentUser.timReview);
+      let displaySub = subTitleParts.length > 0 ? subTitleParts.join(' - ') : roleDisplay;
+
+      let gridHtml = `<div class="livin-card" onclick="renderView('dashboard')"><div class="livin-icon icon-dashboard"><i class="fas fa-chart-pie"></i></div><div class="livin-title">Dashboard</div></div><div class="livin-card" onclick="renderView('cek_temuan')"><div class="livin-icon icon-cek"><i class="fas fa-search"></i></div><div class="livin-title">Pencarian Temuan</div></div><div class="livin-card" onclick="renderView('progress')"><div class="livin-icon icon-progress"><i class="fas fa-tasks"></i></div><div class="livin-title">Progress Penyelesaian</div></div>`;
+      
+      if (currentUser.role === 'admin' || currentUser.role === 'auditor' || currentUser.role === 'reviewer') {
+        gridHtml += `<div class="livin-card" onclick="renderView('tambah')"><div class="livin-icon icon-tambah"><i class="fas fa-plus-square"></i></div><div class="livin-title">Buat Temuan Manual</div></div><div class="livin-card" onclick="renderView('upload_lhr')"><div class="livin-icon icon-upload"><i class="fas fa-file-word"></i></div><div class="livin-title">Upload LHR Word</div></div>`;
+        if(currentUser.role === 'admin') {
+           gridHtml += `<div class="livin-card" onclick="renderView('users')"><div class="livin-icon icon-users"><i class="fas fa-users-cog"></i></div><div class="livin-title">Kelola User</div></div><div class="livin-card" onclick="renderView('laporan')"><div class="livin-icon icon-laporan"><i class="fas fa-file-export"></i></div><div class="livin-title">Cetak LHR</div></div><div class="livin-card" onclick="renderView('identitas')"><div class="livin-icon icon-identitas"><i class="fas fa-palette"></i></div><div class="livin-title">Identitas Aplikasi</div></div><div class="livin-card" onclick="renderView('notifikasi')"><div class="livin-icon icon-notif"><i class="fas fa-bullhorn"></i></div><div class="livin-title">Setting Notifikasi</div></div>`;
+        }
+      }
+      document.getElementById('app').innerHTML = `${getTopNavbarHTML(false)}<div class="main-wrapper"><div class="card mb-4 bg-mandiri-blue text-white shadow-sm" style="border-radius: 20px;"><div class="card-body p-4 p-md-5 d-flex align-items-center"><div class="bg-white rounded-circle d-flex justify-content-center align-items-center text-primary fw-bold shadow-sm" style="width: 70px; height: 70px; font-size: 2rem;">${safeName.charAt(0).toUpperCase()}</div><div class="ms-4"><h3 class="mb-1 fw-bold">Selamat Datang, ${safeName}!</h3><div class="badge bg-mandiri-yellow text-capitalize fs-6 px-3 py-2 shadow-sm text-dark mt-2">${displaySub}</div></div></div></div><h5 class="fw-bold text-primary mb-3"><i class="fas fa-th-large me-2 text-warning"></i>Menu Sistem</h5><div class="livin-grid">${gridHtml}</div></div>`;
+    }
+
+    function renderView(menu) {
+      activeMenu = menu;
+      let title = menu.replace('_', ' '); 
+      if(menu === 'tambah') title = 'Buat Temuan Manual'; else if(menu === 'cek_temuan') title = 'Pencarian Temuan'; else if(menu === 'progress') title = 'Progress Penyelesaian'; else if(menu === 'upload_lhr') title = 'Ekstraksi Temuan dari Word'; else if(menu === 'notifikasi') title = 'Pengaturan Notifikasi Otomatis'; else if(menu === 'identitas') title = 'Pengaturan Identitas & Logo';
+
+      document.getElementById('app').innerHTML = `${getTopNavbarHTML(true, title)}<div class="main-wrapper" id="pageContent"></div>`;
+      
+      try {
+        if (menu === 'dashboard') renderDashboardContainer(); 
+        else if (menu === 'cek_temuan') renderCekTemuanContainer(); 
+        else if (menu === 'progress') renderProgressContainer();
+        else if (menu === 'users') loadUserManagement(); 
+        else if (menu === 'laporan') loadReportPanel(); 
+        else if (menu === 'tambah') showTambahTemuan(); 
+        else if (menu === 'upload_lhr') showUploadLHR();
+        else if (menu === 'notifikasi') loadNotifikasiSettings(); 
+        else if (menu === 'identitas') loadIdentitasSettings();
+      } catch(e) { showErrorAlert(e.message); }
+    }
+
+    function getUniqueOptions(key) { return [...new Set(globalFindings.map(f => String(f[key]||'')).filter(x => x.trim() !== ''))].sort(); }
+
+    // ==========================================
+    // MENU IDENTITAS APLIKASI (ADMIN)
+    // ==========================================
+    function loadIdentitasSettings() {
+      let currentLogo = appConfig.app_logo ? `<div class="border rounded p-3 bg-white text-center shadow-sm"><img src="${appConfig.app_logo}" style="max-height: 120px; object-fit: contain;"></div>` : `<div class="mt-2 text-muted fst-italic">Menggunakan Logo Bawaan Sistem</div>`;
+      const html = `<div class="row justify-content-center"><div class="col-md-8"><div class="card shadow-sm border-0"><div class="card-header bg-mandiri-blue text-white py-3"><h5 class="mb-0 fw-bold"><i class="fas fa-palette me-2 text-warning"></i>Identitas & Logo Aplikasi</h5></div><div class="card-body p-4 bg-light"><div class="alert alert-info border-info shadow-sm fw-medium"><i class="fas fa-info-circle me-2"></i>Pengaturan ini akan langsung mengubah wujud halaman Login dan Nama Aplikasi di Menu Atas.</div><div class="mb-4"><label class="form-label fw-bold text-primary">Nama Aplikasi</label><input type="text" id="cfgAppName" class="form-control form-control-lg border-primary" value="${appConfig.app_name || ''}" placeholder="Contoh: SaPu Temuan"></div><div class="mb-4"><label class="form-label fw-bold text-primary">Deskripsi (Sub-Judul di Halaman Login)</label><input type="text" id="cfgAppDesc" class="form-control border-primary" value="${appConfig.app_desc || ''}" placeholder="Contoh: Sistem Pemantauan Temuan Review"></div><div class="mb-4 p-3 border border-warning rounded bg-white"><label class="form-label fw-bold text-primary"><i class="fas fa-image me-2 text-warning"></i>Logo Aplikasi Saat Ini</label><br>${currentLogo}<hr><label class="form-label fw-bold mt-2">Unggah Logo Baru (Kosongkan jika tidak ingin mengubah)</label><input type="file" id="cfgAppLogo" class="form-control border-warning" accept="image/*"><small class="text-muted d-block mt-2">Gunakan format gambar <b>PNG (latar transparan)</b>. Gambar akan diunggah aman ke Google Drive.</small></div><div class="text-end"><button class="btn btn-outline-danger me-2 fw-bold" onclick="resetLogoDefault()"><i class="fas fa-trash me-1"></i> Kembali ke Logo Bawaan</button><button class="btn btn-primary btn-lg px-5 shadow-sm fw-bold" onclick="saveIdentitasAction()"><i class="fas fa-save me-2"></i> Simpan Perubahan</button></div></div></div></div></div>`;
+      document.getElementById('pageContent').innerHTML = html;
+    }
+
+    async function saveIdentitasAction() {
+      const appName = document.getElementById('cfgAppName').value; const appDesc = document.getElementById('cfgAppDesc').value; const fileInput = document.getElementById('cfgAppLogo');
+      if(!appName) return showAlert("Nama Aplikasi tidak boleh kosong!");
+      showLoader("Menyimpan pengaturan & Mengunggah Logo...");
+      let payload = { app_name: appName, app_desc: appDesc };
+      try {
+        if (fileInput && fileInput.files.length > 0) {
+            let f = fileInput.files[0]; let b64 = await toBase64(f); let fileData = { name: f.name, type: f.type, base64: b64.split(',')[1] };
+            let uploadRes = await apiCall('uploadLogoToDrive', { token: authToken, fileData: fileData });
+            payload.app_logo = uploadRes.url;
+        } else { payload.app_logo = appConfig.app_logo || ''; }
+        
+        await apiCall('saveConfigSettings', { token: authToken, payload: payload });
+        appConfig.app_name = payload.app_name; appConfig.app_desc = payload.app_desc; appConfig.app_logo = payload.app_logo;
+        document.title = appConfig.app_name; hideLoader(); showAlert("Identitas aplikasi dan Logo berhasil diperbarui!"); renderView('identitas');
+      } catch(err) { hideLoader(); showErrorAlert("Error: " + err.message); }
+    }
+
+    async function resetLogoDefault() {
+      showConfirm("Yakin ingin menghapus logo kustom dan menggunakan logo 'SaPu' baru bawaan sistem?", async () => {
+         showLoader("Mereset logo..."); const payload = { app_name: document.getElementById('cfgAppName').value, app_desc: document.getElementById('cfgAppDesc').value, app_logo: '' };
+         try {
+             await apiCall('saveConfigSettings', { token: authToken, payload: payload });
+             appConfig.app_logo = ''; hideLoader(); renderView('identitas');
+         } catch(err) { hideLoader(); showErrorAlert(err.message); }
+      });
+    }
+
+    // ==========================================
+    // MENU NOTIFIKASI (ADMIN)
+    // ==========================================
+    async function loadNotifikasiSettings() {
+      showLoader("Memuat pengaturan notifikasi...");
+      try {
+        const cfg = await apiCall('getNotifSettings', { token: authToken });
+        hideLoader();
+        const isEmailChecked = String(cfg.enable_email) === 'true' ? 'checked' : ''; const isWaChecked = String(cfg.enable_wa) === 'true' ? 'checked' : '';
+        const isT1 = String(cfg.notif_new_temuan) === 'true' ? 'checked' : ''; const isT2 = String(cfg.notif_submit_respon) === 'true' ? 'checked' : ''; const isT3 = String(cfg.notif_tolak_bukti) === 'true' ? 'checked' : ''; const isT4 = String(cfg.notif_teruskan_pimpinan) === 'true' ? 'checked' : ''; const isT5 = String(cfg.notif_approve_temuan) === 'true' ? 'checked' : ''; const isT6 = String(cfg.notif_save_draft) === 'true' ? 'checked' : '';
+
+        const html = `<div class="row"><div class="col-md-5 mb-4"><div class="card shadow-sm border-0 h-100"><div class="card-header bg-mandiri-blue text-white py-3"><h5 class="mb-0 fw-bold"><i class="fas fa-cogs me-2 text-warning"></i>Pengaturan Utama</h5></div><div class="card-body p-4 bg-light"><div class="form-check form-switch mb-4"><input class="form-check-input" type="checkbox" id="cfgEmail" ${isEmailChecked}><label class="form-check-label fw-bold ms-2 mt-1">Aktifkan Notifikasi via Email</label></div><div class="form-check form-switch mb-4"><input class="form-check-input" type="checkbox" id="cfgWa" ${isWaChecked}><label class="form-check-label fw-bold ms-2 mt-1">Aktifkan Notifikasi via WhatsApp</label></div><div class="mb-3"><label class="form-label fw-bold text-primary">Token API Fonnte (Untuk WA)</label><input type="text" id="cfgFonnte" class="form-control border-primary bg-white" value="${cfg.fonnte_token || ''}" placeholder="Masukkan token Fonnte Anda"><small class="text-muted d-block mt-1">Dapatkan token di akun Fonnte.com Anda.</small></div></div></div></div><div class="col-md-7 mb-4"><div class="card shadow-sm border-0 h-100"><div class="card-header bg-white border-bottom border-warning py-3" style="border-bottom-width: 3px !important;"><h5 class="mb-0 fw-bold text-primary"><i class="fas fa-tasks me-2 text-warning"></i>Pemicu Notifikasi (Trigger Event)</h5></div><div class="card-body p-4"><p class="text-muted mb-4 small">Pilih aktivitas apa saja di dalam aplikasi yang akan mengirimkan pesan notifikasi secara otomatis kepada user yang terkait.</p><div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded bg-light"><div><h6 class="fw-bold mb-1">1. Ada Temuan Baru Dibuat</h6><small class="text-muted">Notifikasi ke <b>Cabang/Unit</b> saat Reviewer membuat temuan baru.</small></div><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="cfgT1" ${isT1}></div></div><div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded bg-light"><div><h6 class="fw-bold mb-1">2. Cabang Simpan Draft (Cicil)</h6><small class="text-muted">Notifikasi ke <b>Reviewer</b> saat Cabang mencicil progress.</small></div><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="cfgT6" ${isT6}></div></div><div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded bg-light"><div><h6 class="fw-bold mb-1">3. Cabang Mengirim Bukti Final</h6><small class="text-muted">Notifikasi ke <b>Reviewer</b> saat Cabang selesai mengunggah file bukti.</small></div><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="cfgT2" ${isT2}></div></div><div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded bg-light"><div><h6 class="fw-bold mb-1">4. Reviewer Menolak Bukti Cabang</h6><small class="text-muted">Notifikasi ke <b>Cabang/Unit</b> beserta alasan penolakannya.</small></div><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="cfgT3" ${isT3}></div></div><div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded bg-light"><div><h6 class="fw-bold mb-1">5. Reviewer Meminta Approval Pimpinan</h6><small class="text-muted">Notifikasi ke <b>Pimpinan</b> bahwa ada temuan siap disetujui (Done).</small></div><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="cfgT4" ${isT4}></div></div><div class="d-flex justify-content-between align-items-center mb-3 p-3 border rounded bg-light"><div><h6 class="fw-bold mb-1">6. Pimpinan Menyetujui (Status DONE)</h6><small class="text-muted">Notifikasi ke <b>Cabang</b> bahwa temuan telah resmi ditutup.</small></div><div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="cfgT5" ${isT5}></div></div></div></div></div><div class="col-12 mt-2 text-end"><button class="btn btn-primary btn-lg px-5 shadow-sm fw-bold" onclick="saveNotifSettingsAction()"><i class="fas fa-save me-2"></i> Simpan Semua Pengaturan</button></div></div>`;
+        document.getElementById('pageContent').innerHTML = html;
+      } catch(err) { hideLoader(); showErrorAlert(err.message); }
+    }
+
+    async function saveNotifSettingsAction() {
+      showLoader("Menyimpan Pengaturan...");
+      const payload = { enable_email: document.getElementById('cfgEmail').checked, enable_wa: document.getElementById('cfgWa').checked, fonnte_token: document.getElementById('cfgFonnte').value, notif_new_temuan: document.getElementById('cfgT1').checked, notif_submit_respon: document.getElementById('cfgT2').checked, notif_tolak_bukti: document.getElementById('cfgT3').checked, notif_teruskan_pimpinan: document.getElementById('cfgT4').checked, notif_approve_temuan: document.getElementById('cfgT5').checked, notif_save_draft: document.getElementById('cfgT6').checked };
+      try {
+         const res = await apiCall('saveConfigSettings', { token: authToken, payload: payload });
+         hideLoader(); showAlert(res.message);
+      } catch(err) { hideLoader(); showErrorAlert(err.message); }
+    }
+
+    // ==========================================
+    // PROGRESS PENYELESAIAN TEMUAN
+    // ==========================================
+    function renderProgressContainer() {
+      let groups = {};
+      globalFindings.forEach(f => {
+        let tgl = formatTgl(f['Tanggal Review']); let jenis = f['Jenis Review'] || '-'; let tim = f['Tim Review'] || '-'; let cab = f['cabang'] || '-';
+        let key = `${tgl}##${jenis}##${tim}##${cab}`;
+        if (!groups[key]) groups[key] = { tgl, jenis, tim, cab, total: 0, done: 0, pending: 0, overdue: 0, review: 0, approval: 0 };
+        groups[key].total++; let s = String(f.status).toLowerCase();
+        if (s === 'done') groups[key].done++; else if (s === 'pending') groups[key].pending++; else if (s === 'overdue') groups[key].overdue++; else if (s === 'review') groups[key].review++; else if (s === 'approval') groups[key].approval++;
+      });
+
+      let isCabang = currentUser.role === 'cabang';
+      let thTimCabang = isCabang ? '' : '<th style="min-width: 120px;">Tim Review</th><th style="min-width: 180px;">Nama Cabang</th>';
+
+      let html = `<div class="card shadow-sm border-0"><div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold text-primary"><i class="fas fa-tasks me-2 text-warning"></i>Rekap Progress Penyelesaian</h5></div><div class="card-body p-0"><div class="table-responsive table-container px-3 pb-3 pt-0 mt-2"><table class="table table-hover align-middle"><thead><tr><th style="min-width: 110px;">Tgl Review</th><th style="min-width: 150px;">Jenis Review</th>${thTimCabang}<th style="min-width: 90px;" class="text-center">Total</th><th style="min-width: 300px;">Rincian Status</th><th style="min-width: 120px;" class="text-center">% Selesai</th></tr></thead><tbody>`;
+      
+      let keys = Object.keys(groups);
+      if(keys.length === 0) html += `<tr><td colspan="7" class="text-center p-5 text-muted"><i class="fas fa-box-open fa-3x mb-3 text-light"></i><br>Belum ada data review.</td></tr>`;
+      else {
+        keys.forEach(k => {
+          let g = groups[k]; let pct = g.total > 0 ? ((g.done / g.total) * 100).toFixed(1) : 0; let pClass = pct == 100 ? 'text-success' : 'text-danger';
+          let rincian = '';
+          if(g.done > 0) rincian += `<span class="badge bg-success me-1 mb-1">Done: ${g.done}</span>`;
+          if(g.pending > 0) rincian += `<span class="badge bg-warning text-dark me-1 mb-1">Pending: ${g.pending}</span>`;
+          if(g.overdue > 0) rincian += `<span class="badge bg-danger me-1 mb-1">Overdue: ${g.overdue}</span>`;
+          if(g.review > 0) rincian += `<span class="badge bg-info text-white me-1 mb-1">Review: ${g.review}</span>`;
+          if(g.approval > 0) rincian += `<span class="badge bg-primary me-1 mb-1">Approval: ${g.approval}</span>`;
+
+          let tdTimCabang = isCabang ? '' : `<td class="fw-medium">${g.tim}</td><td class="fw-bold text-primary">${g.cab}</td>`;
+          html += `<tr><td class="fw-medium">${g.tgl}</td><td class="fw-medium">${g.jenis}</td>${tdTimCabang}<td class="text-center fw-bold fs-6">${g.total}</td><td>${rincian}</td><td class="text-center fw-bold fs-6 ${pClass}">${pct}%</td></tr>`;
+        });
+      }
+      html += `</tbody></table></div></div></div>`; document.getElementById('pageContent').innerHTML = html;
+    }
+
+    // ==========================================
+    // DASHBOARD
+    // ==========================================
+    function renderDashboardContainer() {
+      const optTahun = getUniqueOptions('Tahun Review').map(c => `<option value="${c}">${c}</option>`).join('');
+      const optTriwulan = getUniqueOptions('Triwulan').map(c => `<option value="${c}">${c}</option>`).join('');
+      const optTim = getUniqueOptions('Tim Review').map(c => `<option value="${c}">${c}</option>`).join('');
+      const optJenis = getUniqueOptions('Jenis Review').map(c => `<option value="${c}">${c}</option>`).join('');
+      const optCabang = getUniqueOptions('cabang').map(c => `<option value="${c}">${c}</option>`).join('');
+
+      let filterHtml = '';
+      if(currentUser.role === 'cabang') {
+         const rawDueDates = [...new Set(globalFindings.map(f => getIsoDate(f.deadline)).filter(x => x !== ''))].sort();
+         const optDue = rawDueDates.map(d => `<option value="${d}">${formatTgl(d)}</option>`).join('');
+         filterHtml = `<div class="col-md-3"><label class="small fw-bold text-muted">Jenis Review</label><select id="dashJenis" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">-- Semua --</option>${optJenis}</select></div>
+                       <div class="col-md-3"><label class="small fw-bold text-muted">Due Date</label><select id="dashDue" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">-- Semua --</option>${optDue}</select></div>
+                       <input type="hidden" id="dashTim" value=""><input type="hidden" id="dashTahun" value=""><input type="hidden" id="dashTriwulan" value=""><input type="hidden" id="dashCabang" value=""><input type="hidden" id="dashStatus" value=""><input type="hidden" id="dashTanggal" value="">`;
+      } else if (currentUser.role === 'pic_jenis') {
+         const rawDueDates = [...new Set(globalFindings.map(f => getIsoDate(f.deadline)).filter(x => x !== ''))].sort();
+         const optDue = rawDueDates.map(d => `<option value="${d}">${formatTgl(d)}</option>`).join('');
+         filterHtml = `<div class="col-md-3"><label class="small fw-bold text-muted">Status Temuan</label><select id="dashStatus" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">- Semua -</option><option value="pending">Pending</option><option value="overdue">Overdue</option><option value="review">Review</option><option value="approval">Approval</option><option value="done">Done</option></select></div>
+                       <div class="col-md-3"><label class="small fw-bold text-muted">Nama Cabang</label><select id="dashCabang" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">-- Semua --</option>${optCabang}</select></div>
+                       <div class="col-md-3"><label class="small fw-bold text-muted">Due Date</label><select id="dashDue" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">-- Semua --</option>${optDue}</select></div>
+                       <input type="hidden" id="dashTim" value=""><input type="hidden" id="dashTahun" value=""><input type="hidden" id="dashTriwulan" value=""><input type="hidden" id="dashJenis" value=""><input type="hidden" id="dashTanggal" value="">`;
+      } else {
+         filterHtml = `<div class="col-md-2"><label class="small fw-bold text-muted">Tim Review</label><select id="dashTim" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">-- Semua --</option>${optTim}</select></div>
+                       <div class="col-md-2"><label class="small fw-bold text-muted">Jenis Review</label><select id="dashJenis" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">-- Semua --</option>${optJenis}</select></div>
+                       <div class="col-md-2"><label class="small fw-bold text-muted">Triwulan</label><select id="dashTriwulan" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">-- Semua --</option>${optTriwulan}</select></div>
+                       <div class="col-md-3"><label class="small fw-bold text-muted">Nama Cabang</label><select id="dashCabang" class="form-select form-select-sm border-primary bg-light" onchange="applyDashFilter()"><option value="">-- Semua --</option>${optCabang}</select></div>
+                       <input type="hidden" id="dashTahun" value=""><input type="hidden" id="dashDue" value=""><input type="hidden" id="dashStatus" value=""><input type="hidden" id="dashTanggal" value="">`;
+      }
+
+      let html = `<div class="card mb-4 shadow-sm border-0 bg-white"><div class="card-body p-3"><div class="row g-2 align-items-end"><div class="col-md-auto fw-bold text-primary mb-1"><i class="fas fa-filter me-1 text-warning"></i> Filter Statistik:</div>${filterHtml}</div></div></div><div id="dashStatsArea"></div>`;
+      document.getElementById('pageContent').innerHTML = html; applyDashFilter(); 
+    }
+
+    function applyDashFilter() {
+      const fTahun = document.getElementById('dashTahun') ? document.getElementById('dashTahun').value.toLowerCase() : '';
+      const fTriwulan = document.getElementById('dashTriwulan') ? document.getElementById('dashTriwulan').value.toLowerCase() : '';
+      const fTim = document.getElementById('dashTim') ? document.getElementById('dashTim').value.toLowerCase() : '';
+      const fJenis = document.getElementById('dashJenis') ? document.getElementById('dashJenis').value.toLowerCase() : '';
+      const fCabang = document.getElementById('dashCabang') ? document.getElementById('dashCabang').value.toLowerCase() : '';
+      const fDue = document.getElementById('dashDue') ? document.getElementById('dashDue').value : '';
+      const fStatus = document.getElementById('dashStatus') ? document.getElementById('dashStatus').value.toLowerCase() : '';
+
+      const filteredData = globalFindings.filter(f => {
+        let match = true;
+        if (fTahun && String(f['Tahun Review']||'').toLowerCase() !== fTahun) match = false;
+        if (fTriwulan && String(f['Triwulan']||'').toLowerCase() !== fTriwulan) match = false;
+        if (fTim && String(f['Tim Review']||'').toLowerCase() !== fTim) match = false;
+        if (fJenis && String(f['Jenis Review']||'').toLowerCase() !== fJenis) match = false;
+        if (fCabang && String(f.cabang||'').toLowerCase() !== fCabang) match = false;
+        if (fDue && getIsoDate(f.deadline) !== fDue) match = false;
+        if (fStatus && String(f.status || '').toLowerCase() !== fStatus) match = false;
+        return match;
+      });
+
+      const doneCnt = filteredData.filter(f=>String(f.status).toLowerCase()==='done').length;
+      const pendingCnt = filteredData.filter(f=>{ let s=String(f.status).toLowerCase(); return s==='pending'||s==='overdue'}).length;
+      const reviewCnt = filteredData.filter(f=>{ let s=String(f.status).toLowerCase(); return s==='review'||s==='approval'}).length;
+      const total = filteredData.length;
+
+      let statsHtml = `
+      <div class="row mb-4"><div class="col-md-8"><div class="row h-100">
+        <div class="col-md-6 mb-3"><div class="card bg-mandiri-blue h-100 border-0 shadow-sm"><div class="card-body d-flex justify-content-between align-items-center"><div><h6 class="text-white-50 fw-semibold mb-1">Total Temuan</h6><h2 class="mb-0 fw-bold text-white">${total}</h2></div><div class="bg-white bg-opacity-10 p-3 rounded-circle"><i class="fas fa-folder-open fa-2x text-warning"></i></div></div></div></div>
+        <div class="col-md-6 mb-3"><div class="card bg-mandiri-yellow h-100 border-0 shadow-sm"><div class="card-body d-flex justify-content-between align-items-center"><div><h6 class="text-primary fw-semibold mb-1">Pending / Overdue</h6><h2 class="mb-0 fw-bold text-primary">${pendingCnt}</h2></div><div class="bg-white bg-opacity-25 p-3 rounded-circle"><i class="fas fa-clock fa-2x text-primary"></i></div></div></div></div>
+        <div class="col-md-6 mb-3"><div class="card bg-info text-white h-100 border-0 shadow-sm"><div class="card-body d-flex justify-content-between align-items-center"><div><h6 class="text-white-50 fw-semibold mb-1">Dalam Proses Review</h6><h2 class="mb-0 fw-bold">${reviewCnt}</h2></div><div class="bg-white bg-opacity-25 p-3 rounded-circle"><i class="fas fa-search-check fa-2x text-white"></i></div></div></div></div>
+        <div class="col-md-6 mb-3"><div class="card bg-success text-white h-100 border-0 shadow-sm"><div class="card-body d-flex justify-content-between align-items-center"><div><h6 class="text-white-50 fw-semibold mb-1">Selesai (Done)</h6><h2 class="mb-0 fw-bold">${doneCnt}</h2></div><div class="bg-white bg-opacity-25 p-3 rounded-circle"><i class="fas fa-check-circle fa-2x text-white"></i></div></div></div></div>
+      </div></div><div class="col-md-4 mb-3"><div class="card h-100 border-0 shadow-sm"><div class="card-header bg-white py-3 border-0"><h6 class="mb-0 fw-bold text-primary text-center"><i class="fas fa-chart-pie me-2 text-warning"></i>Persentase Penyelesaian</h6></div><div class="card-body d-flex align-items-center justify-content-center"><div class="chart-container"><canvas id="statusChart"></canvas></div></div></div></div></div>`;
+      document.getElementById('dashStatsArea').innerHTML = statsHtml;
+      
+      setTimeout(() => {
+        if(document.getElementById('statusChart') && total > 0) {
+          if(myChart) myChart.destroy(); const ctx = document.getElementById('statusChart').getContext('2d');
+          myChart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Selesai', 'Tertunda', 'Proses'], datasets: [{ data: [doneCnt, pendingCnt, reviewCnt], backgroundColor: ['#198754', '#FFC000', '#0dcaf0'], borderWidth: 0 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, cutout: '75%' } });
+        }
+      }, 100);
+    }
+
+    // ==========================================
+    // PENCARIAN TEMUAN & CETAK
+    // ==========================================
+    function renderCekTemuanContainer() {
+      const optTim = getUniqueOptions('Tim Review').map(c => `<option value="${c}">${c}</option>`).join('');
+      const optJenis = getUniqueOptions('Jenis Review').map(c => `<option value="${c}">${c}</option>`).join('');
+      const optCabang = getUniqueOptions('cabang').map(c => `<option value="${c}">${c}</option>`).join('');
+      const optTriwulan = getUniqueOptions('Triwulan').map(c => `<option value="${c}">${c}</option>`).join('');
+      const rawDueDates = [...new Set(globalFindings.map(f => getIsoDate(f.deadline)).filter(x => x !== ''))].sort();
+      const optDue = rawDueDates.map(d => `<option value="${d}">${formatTgl(d)}</option>`).join('');
+
+      let filterHtml = '';
+      if (currentUser.role === 'cabang') {
+        filterHtml = `<div class="col-md-4"><label class="small fw-bold text-muted">Status Temuan</label><select id="advStatus" class="form-select bg-white border-primary"><option value="">- Semua -</option><option value="pending">Pending</option><option value="overdue">Overdue</option><option value="review">Review</option><option value="approval">Approval</option><option value="done">Done</option></select></div>
+                      <div class="col-md-4"><label class="small fw-bold text-muted">Due Date</label><select id="advDue" class="form-select bg-white border-primary"><option value="">- Semua -</option>${optDue}</select></div>
+                      <input type="hidden" id="advTim" value=""><input type="hidden" id="advJenis" value=""><input type="hidden" id="advCabang" value=""><input type="hidden" id="advTriwulan" value="">`;
+      } else {
+        filterHtml = `<div class="col-md-2"><label class="small fw-bold text-muted">Tim Review</label><select id="advTim" class="form-select bg-white border-primary"><option value="">- Semua -</option>${optTim}</select></div>
+                      <div class="col-md-2"><label class="small fw-bold text-muted">Jenis Review</label><select id="advJenis" class="form-select bg-white border-primary"><option value="">- Semua -</option>${optJenis}</select></div>
+                      <div class="col-md-2"><label class="small fw-bold text-muted">Nama Cabang</label><select id="advCabang" class="form-select bg-white border-primary"><option value="">- Semua -</option>${optCabang}</select></div>
+                      <div class="col-md-2"><label class="small fw-bold text-muted">Triwulan</label><select id="advTriwulan" class="form-select bg-white border-primary"><option value="">- Semua -</option>${optTriwulan}</select></div>
+                      <div class="col-md-2"><label class="small fw-bold text-muted">Status Temuan</label><select id="advStatus" class="form-select bg-white border-primary"><option value="">- Semua -</option><option value="pending">Pending</option><option value="overdue">Overdue</option><option value="review">Review</option><option value="approval">Approval</option><option value="done">Done</option></select></div>
+                      <div class="col-md-2"><label class="small fw-bold text-muted">Due Date</label><select id="advDue" class="form-select bg-white border-primary"><option value="">- Semua -</option>${optDue}</select></div>`;
+      }
+
+      let html = `
+      <div class="card mb-4 shadow-sm border-primary" style="border-top: 4px solid var(--mandiri-blue);">
+        <div class="card-body bg-light rounded p-4"><h5 class="fw-bold text-primary mb-4"><i class="fas fa-search me-2 text-warning"></i>Pencarian Temuan</h5><div class="row g-3 justify-content-center">${filterHtml}<div class="col-md-12 mt-4 text-end border-top pt-3"><button class="btn btn-outline-secondary me-2 px-4 fw-bold" onclick="resetCekTemuan()"><i class="fas fa-sync-alt me-1"></i> Reset</button><button class="btn btn-primary px-5 fw-bold shadow-sm" onclick="applyCekTemuan()"><i class="fas fa-search me-1"></i> Cari</button></div></div></div>
+      </div>
+      <div class="card shadow-sm border-0"><div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold text-primary"><i class="fas fa-list-alt me-2 text-warning"></i>Hasil Pencarian</h5></div>
+      <div class="card-body p-0" id="tableCekContainer"><div class="p-5 text-center text-muted"><i class="fas fa-search fa-4x mb-3 text-light"></i><p>Silakan masukkan kriteria dan klik <b>Cari</b> untuk menampilkan data.</p></div></div></div>`;
+      
+      document.getElementById('pageContent').innerHTML = html;
+      if(isSearchActive || (document.getElementById('advStatus') && document.getElementById('advStatus').value !== '')) { applyCekTemuan(); }
+    }
+
+    function applyCekTemuan() {
+      isSearchActive = true;
+      const fTim = document.getElementById('advTim') ? document.getElementById('advTim').value.toLowerCase() : ''; 
+      const fJenis = document.getElementById('advJenis') ? document.getElementById('advJenis').value.toLowerCase() : ''; 
+      const fCabang = document.getElementById('advCabang') ? document.getElementById('advCabang').value.toLowerCase() : ''; 
+      const fTriwulan = document.getElementById('advTriwulan') ? document.getElementById('advTriwulan').value.toLowerCase() : ''; 
+      const fStatus = document.getElementById('advStatus') ? document.getElementById('advStatus').value.toLowerCase() : ''; 
+      const fDue = document.getElementById('advDue') ? document.getElementById('advDue').value : ''; 
+
+      const filtered = globalFindings.filter(f => {
+        let match = true;
+        if (fTim && String(f['Tim Review'] || '').toLowerCase().indexOf(fTim) === -1) match = false;
+        if (fJenis && String(f['Jenis Review'] || '').toLowerCase().indexOf(fJenis) === -1) match = false;
+        if (fCabang && String(f.cabang || '').toLowerCase().indexOf(fCabang) === -1) match = false;
+        if (fTriwulan && String(f['Triwulan'] || '').toLowerCase().indexOf(fTriwulan) === -1) match = false;
+        if (fStatus && String(f.status || '').toLowerCase() !== fStatus) match = false;
+        if (fDue && getIsoDate(f.deadline) !== fDue) match = false;
+        return match;
+      });
+      renderCekTable(filtered);
+    }
+
+    function resetCekTemuan() {
+      isSearchActive = false;
+      if(document.getElementById('advTim')) document.getElementById('advTim').value = ''; if(document.getElementById('advJenis')) document.getElementById('advJenis').value = ''; if(document.getElementById('advCabang')) document.getElementById('advCabang').value = ''; if(document.getElementById('advTriwulan')) document.getElementById('advTriwulan').value = ''; if(document.getElementById('advStatus')) document.getElementById('advStatus').value = ''; if(document.getElementById('advDue')) document.getElementById('advDue').value = '';
+      currentFilteredIds = []; document.getElementById('tableCekContainer').innerHTML = '<div class="p-5 text-center text-muted"><i class="fas fa-search fa-4x mb-3 text-light"></i><p>Silakan masukkan kriteria dan klik <b>Cari</b> untuk menampilkan data.</p></div>';
+    }
+
+    function renderCekTable(dataArray) {
+      currentFilteredIds = dataArray.map(f => f.id_temuan); 
+      let html = '';
+      if (dataArray.length === 0) {
+        html = '<div class="p-5 text-center text-muted"><i class="fas fa-clipboard-check fa-4x mb-3 text-light"></i><h5>Kosong!</h5><p>Tidak ada data temuan yang sesuai dengan kriteria.</p></div>';
+      } else {
+        html = `
+          <div class="table-responsive table-container px-3 pb-3 pt-0 mt-2">
+            <table class="table table-hover align-middle">
+              <thead><tr><th style="width: 25%;">Risk</th><th style="width: 35%;">Hasil Control Testing</th><th style="width: 12%;" class="text-center">Due Date</th><th style="width: 13%;" class="text-center">Status</th><th style="width: 15%;" class="text-center">Aksi</th></tr></thead>
+              <tbody>
+        `;
+        dataArray.forEach(f => {
+          let s = String(f.status).toLowerCase();
+          let statusClass = s === 'done' ? 'bg-success' : s === 'overdue' ? 'bg-danger' : s === 'review' ? 'bg-info text-white' : s === 'approval' ? 'bg-primary' : 'bg-warning text-dark';
+          let deadlineTxt = formatTgl(f.deadline); 
+          let riskTxt = formatTextHTML(f.risk); let hctTxt = formatTextHTML(f.deskripsi);
+          
+          let btn = `<button class="btn btn-sm btn-outline-primary w-100 fw-bold shadow-sm" onclick="openDetailViewModal('${f.id_temuan}')"><i class="fas fa-expand-arrows-alt me-1"></i> View Detail</button>`;
+          html += `<tr><td class="fw-semibold text-primary">${riskTxt}</td><td>${hctTxt}</td><td class="fw-bold text-danger text-center align-middle">${deadlineTxt}</td>
+                   <td class="text-center align-middle">
+                     <span class="badge ${statusClass} text-uppercase px-3 py-2 w-100 shadow-sm">${f.status}</span>
+                     ${f.progress > 0 && s !== 'done' ? `<div class="progress mt-2" style="height: 6px;" title="Progress: ${f.progress}%"><div class="progress-bar bg-primary" style="width: ${f.progress}%"></div></div>` : ''}
+                   </td><td class="text-center align-middle">${btn}</td></tr>`;
+        });
+        html += `</tbody></table></div>`;
+        html += `<div class="card-footer bg-white border-top p-3 text-end bg-light"><span class="fw-bold text-muted me-3">Cetak Data Tampil:</span><button class="btn btn-sm btn-outline-danger me-2 fw-bold px-3 shadow-sm" onclick="cetakDataFormat('PENCARIAN', 'pdf')"><i class="fas fa-file-pdf me-1"></i> PDF</button><button class="btn btn-sm btn-outline-success me-2 fw-bold px-3 shadow-sm" onclick="cetakDataFormat('PENCARIAN', 'xlsx')"><i class="fas fa-file-excel me-1"></i> XLSX</button><button class="btn btn-sm btn-outline-primary fw-bold px-3 shadow-sm" onclick="cetakDataFormat('PENCARIAN', 'docx')"><i class="fas fa-file-word me-1"></i> DOCX</button></div>`;
+      }
+      document.getElementById('tableCekContainer').innerHTML = html;
+    }
+
+    async function cetakDataFormat(tipe, format) {
+      let payload;
+      if (tipe === 'PENCARIAN') {
+          payload = currentFilteredIds; if (!payload || payload.length === 0) return showAlert('Pencarian kosong. Tidak ada data untuk dicetak!');
+      } else if (tipe === 'LHR') {
+          payload = document.getElementById('rc').value; if (!payload) return showAlert('Pilih cabang target terlebih dahulu!');
+      }
+      showLoader('Membuat file ' + format.toUpperCase() + ' (Membutuhkan beberapa detik)...');
+      try {
+         const res = await apiCall('generateExportFile', { type: tipe, format: format, payload: payload });
+         hideLoader(); let a = document.createElement('a'); a.href = res.url; a.target = '_blank'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      } catch(err) { hideLoader(); showAlert(err.message); }
+    }
+
+    // ==========================================
+    // VIEW DETAIL MODAL & CHECKLIST PROGRESS
+    // ==========================================
+    window.addChecklistItem = function(text = '', isChecked = false, readOnly = false) {
+        let div = document.createElement('div');
+        div.className = 'd-flex align-items-center mb-2 chk-item';
+        div.innerHTML = `
+            <input class="form-check-input me-2 chk-box border-success" type="checkbox" style="width:1.5rem; height:1.5rem;" ${isChecked?'checked':''} ${readOnly?'disabled':''} onchange="updateProgressFromChecklist(this)">
+            <input type="text" class="form-control border-0 bg-transparent fw-medium chk-text ${isChecked?'text-decoration-line-through text-muted':''}" value="${text}" ${readOnly?'readonly':''} oninput="updateProgressFromChecklist()" placeholder="Ketik rincian item...">
+            ${!readOnly ? `<button class="btn text-danger ms-1" onclick="this.parentElement.remove(); updateProgressFromChecklist();"><i class="fas fa-times"></i></button>` : ''}
+        `;
+        document.getElementById('checklistArea').appendChild(div);
+    }
+    
+    window.updateProgressFromChecklist = function(el) {
+        if(el) {
+            let input = el.parentElement.querySelector('.chk-text');
+            if(el.checked) { input.classList.add('text-decoration-line-through', 'text-muted'); }
+            else { input.classList.remove('text-decoration-line-through', 'text-muted'); }
+        }
+        let boxes = document.querySelectorAll('.chk-item .chk-box');
+        let total = boxes.length; let checked = Array.from(boxes).filter(b => b.checked).length;
+        let pct = total === 0 ? 0 : Math.round((checked / total) * 100);
+        document.getElementById('progBadge').innerText = pct + '%';
+        document.getElementById('detProgressVal').value = pct;
+    }
+
+    function renderChecklist(actionPlanText, rekomendasiText, readOnly) {
+        let area = document.getElementById('checklistArea'); area.innerHTML = '';
+        let sourceText = actionPlanText.trim() ? actionPlanText : rekomendasiText;
+        let lines = sourceText.split('\n');
+        let notes = [];
+        
+        lines.forEach(line => {
+            let trim = line.trim(); if(!trim) return;
+            let isChecked = false; let isCheck = false; let text = trim;
+            
+            if (trim.match(/^\[[xXvV]\]/)) { isChecked = true; isCheck = true; text = trim.substring(3).trim(); }
+            else if (trim.match(/^\[\s\]/)) { isChecked = false; isCheck = true; text = trim.substring(3).trim(); }
+            else if (trim.match(/^[-*•]\s+/) || trim.match(/^[0-9]+[\.\)]\s+/)) {
+                isChecked = false; isCheck = true; text = trim.replace(/^[-*•]\s+/, '').replace(/^[0-9]+[\.\)]\s+/, '').trim();
+            }
+            if (isCheck) { addChecklistItem(text, isChecked, readOnly); } 
+            else if (actionPlanText.trim()) { notes.push(trim); } 
+        });
+        if (notes.length > 0) document.getElementById('detNotesEditable').value = notes.join('\n');
+        updateProgressFromChecklist();
+    }
+
+    function getActionPlanPayload() {
+        let items = document.querySelectorAll('.chk-item');
+        let lines = [];
+        items.forEach(item => {
+            let text = item.querySelector('.chk-text').value.trim();
+            let isChecked = item.querySelector('.chk-box').checked;
+            if(text) lines.push((isChecked ? '[x] ' : '[ ] ') + text);
+        });
+        let notes = document.getElementById('detNotesEditable').value.trim();
+        if(notes) lines.push('\n' + notes);
+        
+        let pct = document.getElementById('detProgressVal').value;
+        return { text: lines.join('\n').trim(), progress: parseInt(pct) };
+    }
+
+    function openDetailViewModal(id) {
+      const f = globalFindings.find(x => String(x.id_temuan) === String(id));
+      if(!f) return;
+      
+      const isAuditorOrAdmin = (currentUser.role === 'auditor' || currentUser.role === 'reviewer' || currentUser.role === 'admin');
+      const readOnlyAttr = isAuditorOrAdmin ? '' : 'readonly';
+      let statLower = String(f.status).toLowerCase();
+      
+      let actionButtons = ''; let uploadSection = '';
+      let btnLihatBukti = '';
+      if (f.file_url) {
+        let urls = String(f.file_url).split('\n').filter(u => u.trim() !== '');
+        urls.forEach((u, idx) => { btnLihatBukti += `<button class="btn btn-outline-info shadow-sm w-100 mb-2 fw-bold" onclick="viewDocumentInModal('${u}'); return false;"><i class="fas fa-eye me-2"></i> Pratinjau Dokumen Bukti ${urls.length > 1 ? (idx+1) : ''}</button>`; });
+      }
+
+      let isMyApproval = (currentUser.role === 'pimpinan' && statLower === 'approval' && String(f.target_approver) === String(currentUser.nip));
+      let isCabangUser = (currentUser.role === 'cabang' || currentUser.role === 'pic_jenis');
+      let checklistReadOnly = false;
+
+      if (isCabangUser && (statLower === 'pending' || statLower === 'overdue')) {
+         uploadSection = `<div class="mt-4 pt-3 border-top border-warning"><label class="form-label fw-bold text-primary"><i class="fas fa-paperclip me-2"></i>Upload File Bukti Tambahan (Maks. 5)</label>
+                          <input type="file" id="fileBukti1" class="form-control border-primary bg-white mb-2" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,image/*">
+                          <input type="file" id="fileBukti2" class="form-control border-primary bg-white mb-2" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,image/*">
+                          <input type="file" id="fileBukti3" class="form-control border-primary bg-white mb-2" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,image/*">
+                          <input type="file" id="fileBukti4" class="form-control border-primary bg-white mb-2" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,image/*">
+                          <input type="file" id="fileBukti5" class="form-control border-primary bg-white mb-2" accept=".pdf,.jpg,.jpeg,.png,.docx,.xlsx,image/*"></div>`;
+         actionButtons = `
+           <div class="d-flex gap-2 w-100 mt-3">
+               <button class="btn btn-outline-primary fw-bold w-50 py-2" onclick="submitProgressDraft('${f.id_temuan}')"><i class="fas fa-save me-2"></i> Simpan Draft (Cicil)</button>
+               <button class="btn btn-warning shadow fw-bold w-50 py-2" onclick="submitResponDirect('${f.id_temuan}')"><i class="fas fa-paper-plane me-2"></i> Final (Kirim Reviewer)</button>
+           </div>`;
+      } else if (currentUser.role === 'auditor' || currentUser.role === 'reviewer') {
+         let btnEditT = statLower !== 'done' ? `<button class="btn btn-primary w-100 mb-2 fw-bold shadow-sm" onclick="submitEditTemuanFull()"><i class="fas fa-save me-2"></i> Simpan Perubahan Teks Temuan</button>` : '';
+         let btnHapusT = `<button class="btn btn-outline-danger w-100 mb-2 fw-bold" onclick="hapusTemuanConfirm('${f.id_temuan}')"><i class="fas fa-trash me-2"></i> Hapus Permanen Temuan</button>`;
+         if (statLower === 'review') {
+           actionButtons = btnLihatBukti + `<button class="btn btn-success shadow w-100 mb-2 fw-bold btn-lg" onclick="openReviewModal('${f.id_temuan}')"><i class="fas fa-check-circle me-2"></i> Teruskan ke Pimpinan</button><button class="btn btn-danger shadow-sm w-100 mb-3 fw-bold" onclick="tolakBukti('${f.id_temuan}')"><i class="fas fa-times-circle me-2"></i> Tolak Bukti (Kembalikan)</button>` + btnEditT;
+         } else { actionButtons = btnLihatBukti + btnEditT + btnHapusT; }
+      } else if (isMyApproval) {
+         checklistReadOnly = true; actionButtons = btnLihatBukti + `<button class="btn btn-success shadow w-100 fw-bold btn-lg" onclick="approveTemuan('${f.id_temuan}')"><i class="fas fa-check-double me-2"></i> Approve & Tutup Temuan Ini</button>`;
+      } else { checklistReadOnly = true; actionButtons = btnLihatBukti; }
+
+      let deadlineVal = getIsoDate(f.deadline); let tanggalReviewVal = getIsoDate(f['Tanggal Review']);
+
+      const html = `
+        <div class="modal fade" id="detailTemuanModal" tabindex="-1">
+          <div class="modal-dialog modal-dialog-centered modal-xl modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow-lg">
+              <div class="modal-header bg-mandiri-blue text-white"><h5 class="modal-title fw-bold"><i class="fas fa-file-alt me-2 text-warning"></i>Detail Lengkap Temuan (ID: ${f.id_temuan})</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+              <div class="modal-body p-4 bg-light">
+                <input type="hidden" id="detId" value="${f.id_temuan}">
+                <input type="hidden" id="detProgressVal" value="${f.progress}">
+                
+                <div class="row bg-white p-3 rounded shadow-sm mb-4 mx-0 border-top border-warning" style="border-top-width: 4px !important;">
+                  <h6 class="fw-bold text-primary mb-3"><i class="fas fa-info-circle me-2 text-warning"></i>Informasi Administratif</h6>
+                  <div class="col-md-4 mb-3"><label class="form-label text-muted small fw-bold">Jenis Review</label><input type="text" id="detJenis" class="form-control fw-medium border-primary bg-light" value="${f['Jenis Review']||''}" ${readOnlyAttr}></div>
+                  <div class="col-md-4 mb-3"><label class="form-label text-muted small fw-bold">Tahun Review</label><input type="number" id="detTahun" class="form-control fw-medium border-primary bg-light" value="${f['Tahun Review']||''}" ${readOnlyAttr}></div>
+                  <div class="col-md-4 mb-3"><label class="form-label text-muted small fw-bold">Tanggal Review</label><input type="date" id="detTanggal" class="form-control fw-medium border-primary bg-light" value="${tanggalReviewVal}" ${readOnlyAttr}></div>
+                  <div class="col-md-4 mb-3"><label class="form-label text-muted small fw-bold">Triwulan</label><input type="text" id="detTriwulan" class="form-control fw-medium border-primary bg-light" value="${f['Triwulan']||''}" ${readOnlyAttr}></div>
+                  <div class="col-md-4 mb-3"><label class="form-label text-muted small fw-bold">Tim Review</label><input type="text" id="detTim" class="form-control fw-medium border-primary bg-light" value="${f['Tim Review']||''}" ${readOnlyAttr}></div>
+                  <div class="col-md-4 mb-3"><label class="form-label text-muted small fw-bold">Due Date (Deadline)</label><input type="date" id="detDue" class="form-control fw-bold border-danger text-danger bg-white" value="${deadlineVal}" ${readOnlyAttr}></div>
+                  <div class="col-md-6 mb-3"><label class="form-label text-muted small fw-bold">Kode Cabang</label><input type="text" id="detKodeCab" class="form-control fw-medium border-primary bg-light" value="${f.kode_cabang||''}" ${readOnlyAttr}></div>
+                  <div class="col-md-6 mb-3"><label class="form-label text-muted small fw-bold">Nama Cabang / Unit Kerja</label><input type="text" id="detCab" class="form-control fw-bold border-primary bg-white text-primary" value="${f.cabang||''}" ${readOnlyAttr}></div>
+                </div>
+                <div class="bg-white p-3 rounded shadow-sm mb-4 border-top border-primary" style="border-top-width: 4px !important;">
+                  <h6 class="fw-bold text-primary mb-3"><i class="fas fa-list-ul me-2 text-warning"></i>Uraian Temuan</h6>
+                  <div class="mb-3"><label class="form-label fw-bold text-dark">Risk (Risiko)</label><div class="p-2 border border-secondary bg-light rounded" ${readOnlyAttr ? '' : 'contenteditable="true" id="detRiskEditable" style="min-height:80px;"'}>${formatTextHTML(f.risk)}</div></div>
+                  <div class="mb-3"><label class="form-label fw-bold text-dark">Hasil Control Testing (Deskripsi)</label><div class="p-2 border border-secondary bg-light rounded" ${readOnlyAttr ? '' : 'contenteditable="true" id="detDescEditable" style="min-height:120px;"'}>${formatTextHTML(f.deskripsi)}</div></div>
+                  <div class="mb-3"><label class="form-label fw-bold text-dark">Rekomendasi Perbaikan</label><div class="p-2 border border-secondary bg-light rounded" id="detRekEditable" ${readOnlyAttr ? '' : 'contenteditable="true"'} style="min-height:100px;">${formatTextHTML(f.rekomendasi)}</div></div>
+                </div>
+                
+                <div class="bg-white p-4 rounded shadow-sm border-top border-success" style="border-top-width: 4px !important;">
+                  <div class="mb-3 d-flex justify-content-between align-items-center"><label class="form-label fw-bold text-success fs-5 mb-0"><i class="fas fa-check-square me-2 text-success"></i>Checklist Penyelesaian</label><span class="badge bg-success fs-5 shadow-sm" id="progBadge">${f.progress}%</span></div>
+                  <div id="checklistArea" class="mb-3"></div>
+                  ${!checklistReadOnly ? `<button class="btn btn-sm btn-outline-success mb-3 fw-bold" onclick="addChecklistItem()"><i class="fas fa-plus me-1"></i> Tambah Item Checklist</button>` : ''}
+                  
+                  <label class="form-label fw-bold text-muted small">Catatan Tambahan (Bila ada):</label>
+                  <textarea id="detNotesEditable" class="form-control border-success bg-light fw-bold" rows="3" ${checklistReadOnly ? 'readonly' : ''} placeholder="Ketik keterangan lain di sini..."></textarea>
+                  
+                  ${uploadSection}
+                </div>
+                
+                <hr class="my-4"><div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-white rounded shadow-sm"><span class="fw-bold text-muted fs-5">Status Akhir Temuan:</span><span class="badge bg-secondary text-uppercase px-4 py-2 fs-5 shadow-sm">${f.status}</span></div>
+                <div class="mt-4 pt-3 border-top">${actionButtons}</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      document.getElementById('dynamicModals').innerHTML = html;
+      
+      renderChecklist(f.action_plan, f.rekomendasi, checklistReadOnly);
+      const m = bootstrap.Modal.getOrCreateInstance(document.getElementById('detailTemuanModal')); m.show();
+    }
+
+    async function submitProgressDraft(id) {
+      const payloadAct = getActionPlanPayload();
+      let fileArray = []; showLoader("Menyimpan draft...");
+      try {
+        for(let i=1; i<=5; i++) {
+          let fileInput = document.getElementById('fileBukti'+i);
+          if (fileInput && fileInput.files.length > 0) { let f = fileInput.files[0]; let b64 = await toBase64(f); fileArray.push({ name: f.name, type: f.type, base64: b64.split(',')[1] }); }
+        }
+        if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
+        const res = await apiCall('simpanProgressDraft', { idTemuan: id, actionPlanInput: payloadAct.text, progressVal: payloadAct.progress, fileArray: fileArray });
+        refreshData('closeDetail');
+      } catch(err) { hideLoader(); showAlert(`Gagal membaca file: ${err.message}`); }
+    }
+
+    async function submitResponDirect(id) {
+      const payloadAct = getActionPlanPayload();
+      if (!payloadAct.text) return showAlert('Checklist / Action Plan wajib diisi sebelum Finalisasi!');
+      
+      let fileArray = []; showLoader("Memproses pengiriman final...");
+      try {
+        for(let i=1; i<=5; i++) {
+          let fileInput = document.getElementById('fileBukti'+i);
+          if (fileInput && fileInput.files.length > 0) { let f = fileInput.files[0]; let b64 = await toBase64(f); fileArray.push({ name: f.name, type: f.type, base64: b64.split(',')[1] }); }
+        }
+        if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
+        const res = await apiCall('kirimRespon', { idTemuan: id, actionPlanInput: payloadAct.text, fileArray: fileArray });
+        refreshData('closeDetail');
+      } catch(err) { hideLoader(); showAlert(`Gagal memproses file: ${err.message}`); }
+    }
+
+    async function submitEditTemuanFull() {
+      const id = document.getElementById('detId').value;
+      const rEl = document.getElementById('detRiskEditable'); const dEl = document.getElementById('detDescEditable'); const rekEl = document.getElementById('detRekEditable'); 
+      const payloadAct = getActionPlanPayload();
+      
+      let rekText = rekEl ? rekEl.innerText : '';
+      if(rekEl) {
+         let spans = rekEl.querySelectorAll('div');
+         if(spans.length > 0) { rekText = Array.from(spans).map(d => d.innerText).join('\n'); }
+      }
+      
+      const payload = { jenisReview: document.getElementById('detJenis').value, tahunReview: document.getElementById('detTahun').value, tanggalReview: document.getElementById('detTanggal').value, triwulan: document.getElementById('detTriwulan').value, timReview: document.getElementById('detTim').value, deadline: document.getElementById('detDue').value, kodeCabang: document.getElementById('detKodeCab').value, cabang: document.getElementById('detCab').value, risk: rEl?rEl.innerText:'', deskripsi: dEl?dEl.innerText:'', rekomendasi: rekText, actionPlan: payloadAct.text, progress: payloadAct.progress };
+      if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
+      showLoader("Menyimpan Perubahan...");
+      try {
+         await apiCall('updateTemuanFull', { idTemuan: id, payload: payload });
+         refreshData('closeDetail');
+      } catch(err) { hideLoader(); showAlert(err.message); }
+    }
+
+    function hapusTemuanConfirm(id) {
+      if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
+      setTimeout(() => { showConfirm('Yakin ingin menghapus temuan ini SECARA PERMANEN?', async () => { 
+          showLoader("Menghapus data..."); 
+          try { await apiCall('hapusTemuan', {idTemuan: id}); refreshData('closeDetail'); } catch(e) { hideLoader(); showErrorAlert(e.message); }
+      }); }, 300);
+    }
+
+    function tolakBukti(id) {
+      if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
+      setTimeout(() => { showPrompt(async (alasan) => { 
+          showLoader("Memproses Penolakan..."); 
+          try { await apiCall('tolakBuktiTemuan', {idTemuan: id, alasan: alasan}); refreshData('closeDetail'); } catch(e) { hideLoader(); showErrorAlert(e.message); }
+      }); }, 300);
+    }
+
+    async function openReviewModal(id) {
+      if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
+      showLoader("Memuat daftar Pimpinan...");
+      try {
+        const pimpinans = await apiCall('getPimpinans');
+        hideLoader();
+        let opts = '<option value="">-- Pilih Pimpinan --</option>'; pimpinans.forEach(p => opts += `<option value="${p.nip}">${p.nama} (${p.nip})</option>`);
+        const html = `<div class="modal fade" id="reviewModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-info text-white"><h5 class="modal-title fw-bold"><i class="fas fa-search-check me-2"></i>Teruskan ke Pimpinan</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><label class="fw-bold mb-2">Pilih Pimpinan Approver:</label><select id="targetPimpinan" class="form-select border-info mb-3 form-select-lg">${opts}</select></div><div class="modal-footer bg-light"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-info text-white fw-bold px-4" onclick="submitReview('${id}')"><i class="fas fa-share-square me-1"></i> Teruskan</button></div></div></div></div>`;
+        document.getElementById('dynamicModals').innerHTML = html;
+        setTimeout(() => new bootstrap.Modal(document.getElementById('reviewModal')).show(), 500);
+      } catch(e) { hideLoader(); showErrorAlert(e.message || e); }
+    }
+
+    async function submitReview(id) {
+      const pimpNip = document.getElementById('targetPimpinan').value; if (!pimpNip) return showAlert('Pilih pimpinan approver!');
+      bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide(); showLoader("Meneruskan Temuan...");
+      try { await apiCall('verifikasiTemuan', {idTemuan: id, targetPimpinanNip: pimpNip}); refreshData(); } catch(e) { hideLoader(); showAlert(e.message); }
+    }
+
+    function approveTemuan(id) { 
+      if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
+      setTimeout(() => { showConfirm('Setujui bukti ini dan ubah status menjadi Selesai (Done)?', async () => { 
+          showLoader("Menyetujui Temuan..."); 
+          try { await apiCall('approveTemuan', {idTemuan: id}); refreshData('closeDetail'); } catch(e) { hideLoader(); showErrorAlert(e.message); }
+      }); }, 300);
+    }
+
+    // ==========================================
+    // TAMBAH TEMUAN MANUAL
+    // ==========================================
+    async function showTambahTemuan() {
+      document.getElementById('pageContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p>Memuat Form...</p></div>';
+      try {
+        const cabangs = await apiCall('getAllCabang');
+        let opts = ''; cabangs.forEach(c => opts += `<option value="${c}">`); 
+        document.getElementById('pageContent').innerHTML = `
+          <div class="card shadow-sm border-0"><div class="card-header bg-white py-3 border-bottom"><h5 class="mb-0 fw-bold text-primary"><i class="fas fa-plus-square me-2 text-warning"></i>Form Temuan Baru (Manual)</h5></div>
+          <div class="card-body p-4 bg-light">
+            <div class="row">
+              <div class="col-md-4 mb-3"><label class="form-label fw-bold">Jenis Review</label><input type="text" id="ntJenis" class="form-control border-primary"></div>
+              <div class="col-md-4 mb-3"><label class="form-label fw-bold">Tahun Review</label><input type="number" id="ntTahun" class="form-control border-primary"></div>
+              <div class="col-md-4 mb-3"><label class="form-label fw-bold">Tanggal Review</label><input type="date" id="ntTanggal" class="form-control border-primary"></div>
+              <div class="col-md-4 mb-3"><label class="form-label fw-bold">Triwulan</label><input type="text" id="ntTriwulan" class="form-control border-primary" placeholder="Contoh: Q1"></div>
+              <div class="col-md-4 mb-3"><label class="form-label fw-bold">Tim Review</label><input type="text" id="ntTim" class="form-control border-primary"></div>
+              <div class="col-md-4 mb-3"><label class="form-label fw-bold text-danger">Batas Waktu (Deadline)</label><input type="date" id="ntDue" class="form-control border-danger"></div>
+              <div class="col-md-6 mb-3"><label class="form-label fw-bold">Kode Cabang</label><input type="text" id="ntKodeCab" class="form-control border-primary"></div>
+              <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold">Cabang / Unit Tujuan (Ketik/Pilih)</label>
+                <input list="cabangList" id="ntCab" class="form-control border-primary" placeholder="Masukkan Nama Cabang">
+                <datalist id="cabangList">${opts}</datalist>
+              </div>
+            </div>
+            <div class="mb-3"><label class="form-label fw-bold text-dark">Risk (Risiko Temuan)</label><textarea id="ntRisk" class="form-control border-secondary" rows="3"></textarea></div>
+            <div class="mb-3"><label class="form-label fw-bold text-dark">Hasil Control Testing (Deskripsi)</label><textarea id="ntDesc" class="form-control border-secondary" rows="4"></textarea></div>
+            <div class="mb-3"><label class="form-label fw-bold text-dark">Rekomendasi Perbaikan</label><textarea id="ntRek" class="form-control border-secondary" rows="3"></textarea></div>
+            <hr class="my-4 text-muted"><button class="btn btn-primary btn-lg px-5 shadow-sm fw-bold" onclick="tambahTemuanAction()"><i class="fas fa-paper-plane me-2"></i>Kirim Temuan ke Unit Kerja</button>
+          </div></div>`;
+      } catch(e) { showErrorAlert(e.message); }
+    }
+
+    async function tambahTemuanAction() {
+      const payload = { jenisReview: document.getElementById('ntJenis').value, tahunReview: document.getElementById('ntTahun').value, tanggalReview: document.getElementById('ntTanggal').value, triwulan: document.getElementById('ntTriwulan').value, timReview: document.getElementById('ntTim').value, kodeCabang: document.getElementById('ntKodeCab').value, cabang: document.getElementById('ntCab').value, risk: document.getElementById('ntRisk').value, deskripsi: document.getElementById('ntDesc').value, rekomendasi: document.getElementById('ntRek').value, actionPlan: '', deadline: document.getElementById('ntDue').value };
+      if(!payload.cabang || !payload.risk || !payload.deskripsi || !payload.deadline) return showAlert('Cabang, Risk, Deskripsi dan Deadline wajib diisi!');
+      showLoader("Menyimpan temuan...");
+      try { await apiCall('tambahTemuan', {payload: payload}); hideLoader(); renderHome(); } catch(e) { hideLoader(); showErrorAlert(e.message); }
+    }
+
+    // ==========================================
+    // UPLOAD LHR (EKSTRAK WORD)
+    // ==========================================
+    async function showUploadLHR() {
+      document.getElementById('pageContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p>Memuat Form...</p></div>';
+      try {
+        const cabangs = await apiCall('getAllCabang');
+        let opts = ''; cabangs.forEach(c => opts += `<option value="${c}">`); 
+        document.getElementById('pageContent').innerHTML = `
+          <div class="card shadow-sm border-0">
+            <div class="card-header bg-mandiri-blue text-white py-3 border-bottom"><h5 class="mb-0 fw-bold"><i class="fas fa-file-word me-2 text-warning"></i>Ekstraksi Temuan Otomatis dari LHR</h5></div>
+            <div class="card-body p-4 bg-light">
+              <div class="alert alert-info border-info fw-medium shadow-sm"><i class="fas fa-info-circle me-2"></i>Sistem akan membaca tabel pada dokumen Word (.doc/.docx) dan membuatkan data temuan secara otomatis. Kolom wajib: <b>No, Risk, Hasil Control Testing, Rekomendasi, Tanggapan, Status</b>.</div>
+              <div class="row mt-4">
+                <div class="col-md-4 mb-3"><label class="form-label fw-bold">Jenis Review</label><input type="text" id="upJenis" class="form-control border-primary"></div>
+                <div class="col-md-4 mb-3"><label class="form-label fw-bold">Tahun Review</label><input type="number" id="upTahun" class="form-control border-primary"></div>
+                <div class="col-md-4 mb-3"><label class="form-label fw-bold">Tanggal Review</label><input type="date" id="upTanggal" class="form-control border-primary"></div>
+                <div class="col-md-4 mb-3"><label class="form-label fw-bold">Triwulan</label><input type="text" id="upTriwulan" class="form-control border-primary" placeholder="Contoh: Q1"></div>
+                <div class="col-md-4 mb-3"><label class="form-label fw-bold">Tim Review</label><input type="text" id="upTim" class="form-control border-primary"></div>
+                <div class="col-md-4 mb-3"><label class="form-label fw-bold text-danger">Batas Waktu (Due Date)</label><input type="date" id="upDue" class="form-control border-danger"></div>
+                <div class="col-md-6 mb-3"><label class="form-label fw-bold">Kode Cabang Target</label><input type="text" id="upKodeCab" class="form-control border-primary"></div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">Cabang / Unit Tujuan (Ketik/Pilih)</label>
+                  <input list="cabangListUp" id="upCab" class="form-control border-primary" placeholder="Masukkan Nama Cabang">
+                  <datalist id="cabangListUp">${opts}</datalist>
+                </div>
+                <div class="col-md-12 mb-3">
+                  <label class="form-label fw-bold text-muted">Reviewer Pendata</label>
+                  <input type="text" class="form-control bg-light text-muted border-secondary" value="${currentUser.nip} (${currentUser.nama})" readonly disabled title="Otomatis diisi oleh sistem sesuai akun yang sedang login.">
+                </div>
+              </div>
+              <div class="mt-4 p-4 border border-warning rounded bg-white shadow-sm">
+                <label class="form-label fw-bold text-primary fs-5 mb-3"><i class="fas fa-upload me-2"></i>Upload File LHR (.doc / .docx)</label>
+                <input type="file" id="fileLHR" class="form-control form-control-lg border-warning" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+              </div>
+              <hr class="my-4 text-muted"><button class="btn btn-warning btn-lg px-5 shadow-sm fw-bold w-100" onclick="prosesUploadLHRAction()"><i class="fas fa-magic me-2"></i>Mulai Ekstraksi Temuan Otomatis</button>
+            </div>
+          </div>`;
+      } catch(e) { showErrorAlert(e.message); }
+    }
+
+    async function prosesUploadLHRAction() {
+      const payload = { jenisReview: document.getElementById('upJenis').value, tahunReview: document.getElementById('upTahun').value, tanggalReview: document.getElementById('upTanggal').value, triwulan: document.getElementById('upTriwulan').value, timReview: document.getElementById('upTim').value, kodeCabang: document.getElementById('upKodeCab').value, cabang: document.getElementById('upCab').value, deadline: document.getElementById('upDue').value };
+      if(!payload.cabang || !payload.deadline) return showAlert('Cabang Target dan Due Date wajib diisi!');
+      
+      const fileInput = document.getElementById('fileLHR');
+      if (!fileInput || fileInput.files.length === 0) return showAlert('Harap lampirkan file dokumen LHR (Word)!');
+      
+      showLoader("Membaca dan memotong isi file LHR...");
+      try {
+        let f = fileInput.files[0]; let b64 = await toBase64(f); let fileData = { name: f.name, type: f.type, base64: b64.split(',')[1] };
+        const res = await apiCall('processUploadLHR', { payload: payload, fileData: fileData });
+        hideLoader();
+        if(res.success) { showAlert(res.message); setTimeout(()=>refreshData(), 2000); } else { showAlert(res.message); }
+      } catch(e) { hideLoader(); showAlert(`Gagal membaca file: ${e.message}`); }
+    }
+
+    // ==========================================
+    // MENU ADMIN: KELOLA PENGGUNA
+    // ==========================================
+    async function loadUserManagement() {
+      document.getElementById('pageContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p>Memuat Pengguna...</p></div>';
+      try {
+        const users = await apiCall('getAllUsers');
+        globalUsers = users;
+        let html = `<div class="card border-0 shadow-sm"><div class="card-header bg-white py-3 d-flex justify-content-between align-items-center"><h5 class="mb-0 fw-bold text-primary"><i class="fas fa-users-cog me-2 text-warning"></i>Daftar Akses Pengguna</h5><button class="btn btn-primary shadow-sm" onclick="openAddUserModal()"><i class="fas fa-user-plus me-1"></i> Tambah Akses</button></div><div class="card-body p-0"><div class="table-responsive table-container px-3 pb-3 pt-0 mt-2"><table class="table table-hover align-middle mb-0"><thead class="bg-light"><tr><th class="ps-4">NIP</th><th>Nama Lengkap</th><th>Jabatan</th><th>Tim Review</th><th>Role / Spesialisasi</th><th>Status</th><th class="pe-4">Aksi</th></tr></thead><tbody>`;
+        users.forEach(u => {
+          let roleDisplay = u.role === 'auditor' ? 'Reviewer' : u.role; if (u.role === 'pic_jenis') roleDisplay = `PIC: ${u.spesialisasi || '-'}`;
+          html += `<tr><td class="ps-4 fw-bold text-primary">${u.nip}</td><td>${u.nama}</td><td>${u.jabatan||'-'}</td><td>${u.timReview||'-'}</td><td class="text-capitalize"><span class="badge bg-light text-dark border">${roleDisplay}</span></td><td>${u.active ? '<span class="text-success fw-bold"><i class="fas fa-circle ms-1 small"></i> Aktif</span>' : '<span class="text-danger fw-bold"><i class="fas fa-circle ms-1 small"></i> Pasif</span>'}</td><td class="pe-4"><button class="btn btn-sm btn-outline-primary" onclick="openEditUserModal('${u.nip}')"><i class="fas fa-user-edit"></i> Edit</button></td></tr>`
+        });
+        document.getElementById('pageContent').innerHTML = html + `</tbody></table></div></div></div>`;
+      } catch(e) { showErrorAlert(e.message); }
+    }
+
+    function openAddUserModal() {
+      document.getElementById('addNip').value = ''; document.getElementById('addNama').value = ''; document.getElementById('addJabatan').value = ''; document.getElementById('addEmail').value = ''; document.getElementById('addWa').value = ''; document.getElementById('addTimReview').value = ''; document.getElementById('addRole').value = 'admin'; document.getElementById('addCabang').value = ''; document.getElementById('addSpes').value = ''; document.getElementById('addPass').value = '';
+      document.getElementById('addCabangDiv').style.display = 'none'; document.getElementById('addSpesDiv').style.display = 'none'; document.getElementById('addUsrMsg').innerHTML = '';
+      const m = bootstrap.Modal.getOrCreateInstance(document.getElementById('addUserModal')); m.show();
+    }
+
+    async function submitAddUser() {
+      const data = { nip: document.getElementById('addNip').value, nama: document.getElementById('addNama').value, jabatan: document.getElementById('addJabatan').value, email: document.getElementById('addEmail').value, whatsapp: document.getElementById('addWa').value, timReview: document.getElementById('addTimReview').value, role: document.getElementById('addRole').value, cabang: document.getElementById('addCabang').value, spesialisasi: document.getElementById('addSpes').value, password: document.getElementById('addPass').value };
+      if(!data.nip || !data.nama || !data.password) return showAlert('NIP, Nama, dan Password wajib diisi.');
+      document.getElementById('addUsrMsg').innerHTML = '<div class="alert alert-info fw-bold"><i class="fas fa-spinner fa-spin me-2"></i>Menyimpan pengguna...</div>';
+      try {
+         await apiCall('addUser', { userData: data });
+         const m = bootstrap.Modal.getInstance(document.getElementById('addUserModal')); if(m) m.hide(); loadUserManagement();
+      } catch(err) { document.getElementById('addUsrMsg').innerHTML = `<div class="text-danger">${err.message}</div>`; }
+    }
+
+    function openEditUserModal(nip) {
+      const user = globalUsers.find(u => String(u.nip) === String(nip));
+      if(!user) return showAlert('Data tidak ditemukan!');
+      document.getElementById('editNip').value = user.nip; document.getElementById('editNama').value = user.nama; document.getElementById('editJabatan').value = user.jabatan || ''; document.getElementById('editEmail').value = user.email; document.getElementById('editWa').value = user.whatsapp || ''; document.getElementById('editTimReview').value = user.timReview||''; document.getElementById('editRole').value = user.role === 'auditor' ? 'reviewer' : user.role; document.getElementById('editCabang').value = user.cabang || ''; document.getElementById('editSpes').value = user.spesialisasi || ''; document.getElementById('editStatus').value = user.active ? "true" : "false"; document.getElementById('editPass').value = '';
+      document.getElementById('editCabangDiv').style.display = (user.role === 'cabang') ? 'block' : 'none'; document.getElementById('editSpesDiv').style.display = (user.role === 'pic_jenis') ? 'block' : 'none'; document.getElementById('editUsrMsg').innerHTML = '';
+      const m = bootstrap.Modal.getOrCreateInstance(document.getElementById('editUserModal')); m.show();
+    }
+
+    async function submitEditUser() {
+      const nip = document.getElementById('editNip').value;
+      const updates = { nama: document.getElementById('editNama').value, jabatan: document.getElementById('editJabatan').value, email: document.getElementById('editEmail').value, whatsapp: document.getElementById('editWa').value, timReview: document.getElementById('editTimReview').value, role: document.getElementById('editRole').value, cabang: document.getElementById('editCabang').value, spesialisasi: document.getElementById('editSpes').value, active: document.getElementById('editStatus').value === "true" };
+      const pass = document.getElementById('editPass').value; if (pass) updates.password = pass;
+      document.getElementById('editUsrMsg').innerHTML = '<div class="alert alert-info fw-bold"><i class="fas fa-spinner fa-spin me-2"></i>Memperbarui data...</div>';
+      try {
+         await apiCall('updateUser', { nip: nip, updates: updates });
+         const m = bootstrap.Modal.getInstance(document.getElementById('editUserModal')); if(m) m.hide(); loadUserManagement();
+      } catch(err) { document.getElementById('editUsrMsg').innerHTML = `<div class="text-danger">${err.message}</div>`; }
+    }
+
+    // ==========================================
+    // MENU LAPORAN
+    // ==========================================
+    async function loadReportPanel() {
+      document.getElementById('pageContent').innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div></div>';
+      try {
+        const cabangs = await apiCall('getAllCabang');
+        let opts = '<option value="">-- Pilih Cabang Target --</option>'; cabangs.forEach(c => opts += `<option value="${c}">${c}</option>`);
+        document.getElementById('pageContent').innerHTML = `<div class="card border-0 shadow-sm"><div class="card-header bg-white py-3"><h5 class="mb-0 fw-bold text-primary"><i class="fas fa-file-export me-2 text-warning"></i>Cetak Dokumen LHR</h5></div><div class="card-body p-4 bg-light"><div class="row"><div class="col-md-8"><label class="form-label fw-bold">Pilih Cabang Target LHR:</label><select id="rc" class="form-select border-primary form-select-lg mb-4">${opts}</select><div class="p-3 bg-white border border-info rounded shadow-sm"><span class="fw-bold text-muted me-3 d-block d-sm-inline mb-2 mb-sm-0">Format Cetak LHR:</span><button class="btn btn-outline-danger me-2 fw-bold px-4 shadow-sm" onclick="cetakDataFormat('LHR', 'pdf')"><i class="fas fa-file-pdf me-1"></i> PDF</button><button class="btn btn-outline-success me-2 fw-bold px-4 shadow-sm" onclick="cetakDataFormat('LHR', 'xlsx')"><i class="fas fa-file-excel me-1"></i> XLSX</button><button class="btn btn-outline-primary fw-bold px-4 shadow-sm" onclick="cetakDataFormat('LHR', 'docx')"><i class="fas fa-file-word me-1"></i> DOCX</button></div></div></div></div></div>`;
+      } catch(e) { showErrorAlert(e.message); }
+    }
+  </script>
+</body>
+</html>
