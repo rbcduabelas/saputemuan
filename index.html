@@ -104,28 +104,14 @@
     // KONEKSI API GITHUB -> GOOGLE APPS SCRIPT
     // ==========================================================
     
-    // GANTI TULISAN DI BAWAH INI DENGAN URL WEB APP ANDA!!
     const API_URL = "https://script.google.com/macros/s/AKfycbzGr-sRmT1k7XHn6glBd6MSRbMzNOg34syNvWivVwtwb1xbkjEyrGQNDXv2Kh6SA2GC/exec"; 
 
-   // Fungsi Fetch API yang dijamin kebal blokir CORS Google
+    // Fungsi Fetch API yang dijamin kebal blokir CORS Google
     async function apiCall(action, params = {}) {
-      // Otomatis menempelkan Token Sesi (ID Card) pada setiap request
-      const payload = { action: action, token: authToken, ...params }; 
+      // PERBAIKAN: Token `authToken` kini selalu diselipkan di setiap request!
+      const payload = { action: action, token: authToken, ...params };
       try {
         const response = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' }, // Wajib text/plain agar tidak diblokir
-          body: JSON.stringify(payload),
-          redirect: 'follow' // Wajib follow agar bisa mengikuti alur Google
-        });
-        
-        if (!response.ok) throw new Error("HTTP Error: " + response.status);
-        
-        const result = await response.json();
-        if (!result.success) throw new Error(result.message);
-        return result.data;
-      } catch (error) { throw error; }
-    }
           method: 'POST',
           headers: { 'Content-Type': 'text/plain' }, // Wajib text/plain agar tidak diblokir
           body: JSON.stringify(payload),
@@ -216,7 +202,7 @@
       if (!authToken) { showLogin(); }
       
       try {
-          const data = await apiCall('getInitialData', { token: authToken });
+          const data = await apiCall('getInitialData');
           appConfig = data.config || appConfig; document.title = appConfig.app_name;
           if(!authToken) { updateLoginBranding(); }
           
@@ -224,7 +210,7 @@
              currentUser = data.user; globalFindings = data.findings || [];
              updateBellNotification(); renderHome(); resetInactivityTimer();
              silentInterval = setInterval(async () => { 
-                if(authToken) { try{ globalFindings = await apiCall('getFindings', {token: authToken}); updateBellNotification(); }catch(e){} } 
+                if(authToken) { try{ globalFindings = await apiCall('getFindings'); updateBellNotification(); }catch(e){} } 
              }, 45000);
           } else if(authToken) { localStorage.removeItem('authToken'); authToken = null; showLogin(); }
       } catch(e) { 
@@ -262,7 +248,7 @@
         hideLoader(); 
         authToken = res.token; localStorage.setItem('authToken', authToken); currentUser = res.user; globalFindings = res.findings || [];
         updateBellNotification(); renderHome(); resetInactivityTimer(); 
-        clearInterval(silentInterval); silentInterval = setInterval(async () => { if(authToken){ try{ globalFindings = await apiCall('getFindings', {token: authToken}); updateBellNotification(); }catch(e){} } }, 45000);
+        clearInterval(silentInterval); silentInterval = setInterval(async () => { if(authToken){ try{ globalFindings = await apiCall('getFindings'); updateBellNotification(); }catch(e){} } }, 45000);
       } catch(err) { hideLoader(); document.getElementById('loginMessage').innerHTML = `<span class="text-danger">${err.message}</span>`; }
     }
 
@@ -274,7 +260,7 @@
       if(!lama || !baru) return showAlert("Harap isi kedua kolom sandi!");
       document.getElementById('passMsg').innerHTML = '<div class="alert alert-info"><i class="fas fa-spinner fa-spin me-2"></i>Menyimpan...</div>';
       try {
-        const res = await apiCall('ubahPasswordSendiri', { token: authToken, oldPass: lama, newPass: baru });
+        const res = await apiCall('ubahPasswordSendiri', { oldPass: lama, newPass: baru });
         document.getElementById('passMsg').innerHTML = `<div class="alert alert-success">${res.message}</div>`; setTimeout(() => { bootstrap.Modal.getInstance(document.getElementById('gantiPassModal')).hide(); }, 1500);
       } catch(err) { document.getElementById('passMsg').innerHTML = `<div class="alert alert-danger">${err.message}</div>`; }
     }
@@ -306,7 +292,7 @@
     async function refreshData(triggerAction = null) {
       showLoader("Memuat data terbaru...");
       try {
-          globalFindings = await apiCall('getFindings', { token: authToken });
+          globalFindings = await apiCall('getFindings');
           updateBellNotification(); hideLoader();
           if (activeMenu === 'dashboard') renderDashboardContainer();
           else if (activeMenu === 'cek_temuan' && isSearchActive) applyCekTemuan(); 
@@ -378,11 +364,11 @@
       try {
         if (fileInput && fileInput.files.length > 0) {
             let f = fileInput.files[0]; let b64 = await toBase64(f); let fileData = { name: f.name, type: f.type, base64: b64.split(',')[1] };
-            let uploadRes = await apiCall('uploadLogoToDrive', { token: authToken, fileData: fileData });
+            let uploadRes = await apiCall('uploadLogoToDrive', { fileData: fileData });
             payload.app_logo = uploadRes.url || uploadRes; 
         } else { payload.app_logo = appConfig.app_logo || ''; }
         
-        await apiCall('saveConfigSettings', { token: authToken, payload: payload });
+        await apiCall('saveConfigSettings', { payload: payload });
         appConfig.app_name = payload.app_name; appConfig.app_desc = payload.app_desc; appConfig.app_logo = payload.app_logo;
         document.title = appConfig.app_name; hideLoader(); showAlert("Identitas aplikasi dan Logo berhasil diperbarui!"); renderView('identitas');
       } catch(err) { hideLoader(); showErrorAlert("Error: " + err.message); }
@@ -392,7 +378,7 @@
       showConfirm("Yakin ingin menghapus logo kustom dan menggunakan logo 'SaPu' baru bawaan sistem?", async () => {
          showLoader("Mereset logo..."); const payload = { app_name: document.getElementById('cfgAppName').value, app_desc: document.getElementById('cfgAppDesc').value, app_logo: '' };
          try {
-             await apiCall('saveConfigSettings', { token: authToken, payload: payload });
+             await apiCall('saveConfigSettings', { payload: payload });
              appConfig.app_logo = ''; hideLoader(); renderView('identitas');
          } catch(err) { hideLoader(); showErrorAlert(err.message); }
       });
@@ -404,7 +390,7 @@
     async function loadNotifikasiSettings() {
       showLoader("Memuat pengaturan notifikasi...");
       try {
-        const cfg = await apiCall('getNotifSettings', { token: authToken });
+        const cfg = await apiCall('getNotifSettings');
         hideLoader();
         const isEmailChecked = String(cfg.enable_email) === 'true' ? 'checked' : ''; const isWaChecked = String(cfg.enable_wa) === 'true' ? 'checked' : '';
         const isT1 = String(cfg.notif_new_temuan) === 'true' ? 'checked' : ''; const isT2 = String(cfg.notif_submit_respon) === 'true' ? 'checked' : ''; const isT3 = String(cfg.notif_tolak_bukti) === 'true' ? 'checked' : ''; const isT4 = String(cfg.notif_teruskan_pimpinan) === 'true' ? 'checked' : ''; const isT5 = String(cfg.notif_approve_temuan) === 'true' ? 'checked' : ''; const isT6 = String(cfg.notif_save_draft) === 'true' ? 'checked' : '';
@@ -418,7 +404,7 @@
       showLoader("Menyimpan Pengaturan...");
       const payload = { enable_email: document.getElementById('cfgEmail').checked, enable_wa: document.getElementById('cfgWa').checked, fonnte_token: document.getElementById('cfgFonnte').value, notif_new_temuan: document.getElementById('cfgT1').checked, notif_submit_respon: document.getElementById('cfgT2').checked, notif_tolak_bukti: document.getElementById('cfgT3').checked, notif_teruskan_pimpinan: document.getElementById('cfgT4').checked, notif_approve_temuan: document.getElementById('cfgT5').checked, notif_save_draft: document.getElementById('cfgT6').checked };
       try {
-         const res = await apiCall('saveConfigSettings', { token: authToken, payload: payload });
+         const res = await apiCall('saveConfigSettings', { payload: payload });
          hideLoader(); showAlert(res.message);
       } catch(err) { hideLoader(); showErrorAlert(err.message); }
     }
@@ -880,7 +866,7 @@
       if(document.getElementById('detailTemuanModal')) { const m = bootstrap.Modal.getInstance(document.getElementById('detailTemuanModal')); if(m) m.hide(); }
       showLoader("Memuat daftar Pimpinan...");
       try {
-        const pimpinans = await apiCall('getPimpinans', { token: authToken });
+        const pimpinans = await apiCall('getPimpinans');
         hideLoader();
         let opts = '<option value="">-- Pilih Pimpinan --</option>'; pimpinans.forEach(p => opts += `<option value="${p.nip}">${p.nama} (${p.nip})</option>`);
         const html = `<div class="modal fade" id="reviewModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-info text-white"><h5 class="modal-title fw-bold"><i class="fas fa-search-check me-2"></i>Teruskan ke Pimpinan</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><label class="fw-bold mb-2">Pilih Pimpinan Approver:</label><select id="targetPimpinan" class="form-select border-info mb-3 form-select-lg">${opts}</select></div><div class="modal-footer bg-light"><button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button><button class="btn btn-info text-white fw-bold px-4" onclick="submitReview('${id}')"><i class="fas fa-share-square me-1"></i> Teruskan</button></div></div></div></div>`;
