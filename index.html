@@ -107,11 +107,25 @@
     // GANTI TULISAN DI BAWAH INI DENGAN URL WEB APP ANDA!!
     const API_URL = "https://script.google.com/macros/s/AKfycbzGr-sRmT1k7XHn6glBd6MSRbMzNOg34syNvWivVwtwb1xbkjEyrGQNDXv2Kh6SA2GC/exec"; 
 
-    // Fungsi Fetch API yang dijamin kebal blokir CORS Google
+   // Fungsi Fetch API yang dijamin kebal blokir CORS Google
     async function apiCall(action, params = {}) {
-      const payload = { action: action, ...params };
+      // Otomatis menempelkan Token Sesi (ID Card) pada setiap request
+      const payload = { action: action, token: authToken, ...params }; 
       try {
         const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' }, // Wajib text/plain agar tidak diblokir
+          body: JSON.stringify(payload),
+          redirect: 'follow' // Wajib follow agar bisa mengikuti alur Google
+        });
+        
+        if (!response.ok) throw new Error("HTTP Error: " + response.status);
+        
+        const result = await response.json();
+        if (!result.success) throw new Error(result.message);
+        return result.data;
+      } catch (error) { throw error; }
+    }
           method: 'POST',
           headers: { 'Content-Type': 'text/plain' }, // Wajib text/plain agar tidak diblokir
           body: JSON.stringify(payload),
