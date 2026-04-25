@@ -1,4 +1,4 @@
-const CACHE_NAME = 'sapu-temuan-v4';
+const CACHE_NAME = 'sapu-temuan-v5';
 
 // Daftar file yang akan disimpan di memori HP agar loading cepat & bisa offline
 const urlsToCache = [
