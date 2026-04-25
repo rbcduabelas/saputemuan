@@ -106,6 +106,23 @@
     
     const API_URL = "https://script.google.com/macros/s/AKfycbzGr-sRmT1k7XHn6glBd6MSRbMzNOg34syNvWivVwtwb1xbkjEyrGQNDXv2Kh6SA2GC/exec"; 
 
+    // ==========================================================
+    // SISTEM KEAMANAN ANTI-JIPLAK DATABASE (DOMAIN LOCK)
+    // ==========================================================
+    const currentDomain = window.location.hostname;
+    const isOriginalGithub = currentDomain === "rbcduabelas.github.io";
+    const isGoogleAppsScript = currentDomain.includes("googleusercontent.com");
+    const isLocal = currentDomain === "localhost" || currentDomain === "";
+
+    // Jika dibuka di domain selain milik Anda ATAU bukan dari Google Script langsung...
+    if (!isOriginalGithub && !isGoogleAppsScript && !isLocal) {
+      // Dan ternyata link API_URL-nya masih menggunakan ID rahasia milik Anda...
+      if (API_URL.includes("AKfycbzGr-sRmT1k7XHn6glBd6MSRbMzNOg34syNvWivVwtwb1xbkjEyrGQNDXv2Kh6SA2GC")) {
+        document.write("<div style='padding:50px; text-align:center; color:#721c24; background-color:#f8d7da; font-family:sans-serif; height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center;'><h2>🚨 AKSES DIBLOKIR</h2><p>Aplikasi ini mendeteksi bahwa Anda menggunakan <i>source code</i> dari repositori orang lain, tetapi <b>belum mengganti API_URL</b>.</p><p>Untuk mencegah bocornya data ke database pemilik asli, sistem dibekukan.</p><p><b>Silakan buat Google Apps Script Anda sendiri dan ganti variabel <code>API_URL</code> di file index.html.</b></p></div>");
+        throw new Error("Keamanan: API URL belum diganti oleh pengembang baru.");
+      }
+    }
+
     // Fungsi Fetch API yang dijamin kebal blokir CORS Google
     async function apiCall(action, params = {}) {
       // PERBAIKAN: Token `authToken` kini selalu diselipkan di setiap request!
